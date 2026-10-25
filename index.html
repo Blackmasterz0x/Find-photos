@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STSS STUDIO - Face Image Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --neon-blue: #00f3ff;
+            --neon-blue-glow: 0 0 5px #00f3ff, 0 0 15px #00f3ff, 0 0 30px #00f3ff;
+            --neon-white: #ffffff;
+            --neon-white-glow: 0 0 5px #ffffff, 0 0 15px #ffffff;
+            --neon-red: #ff3366;
+            --panel-bg: rgba(10, 10, 20, 0.85);
+            --border-color: rgba(0, 243, 255, 0.2);
+        }
+
+        body {
+            margin: 0; padding: 0; 
+            background: radial-gradient(circle at center, #111 0%, var(--bg-color) 100%);
+            color: #fff; font-family: 'Kanit', sans-serif;
+            display: flex; flex-direction: column; min-height: 100vh; align-items: center;
+        }
+
+        .stss { color: var(--neon-blue); text-shadow: var(--neon-blue-glow); font-weight: 700; }
+        .studio { color: var(--neon-white); text-shadow: var(--neon-white-glow); font-weight: 700; }
+
+        header { margin-top: 50px; text-align: center; }
+        h1.logo { font-size: 2.8rem; margin: 0; letter-spacing: 3px; }
+        .subtitle { color: #888; font-size: 1rem; margin-top: 8px; font-weight: 300; }
+
+        .container { 
+            flex: 1; width: 100%; max-width: 700px; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center; box-sizing: border-box; 
+        }
+
+        /* กล่องอัปโหลด */
+        .upload-panel {
+            background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 20px;
+            padding: 40px; width: 100%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px); transition: all 0.3s ease; box-sizing: border-box; position: relative;
+        }
+        .upload-panel.dragover { border-color: var(--neon-blue); box-shadow: var(--neon-blue-glow); background: rgba(0, 243, 255, 0.05); }
+        .upload-icon { font-size: 60px; margin-bottom: 15px; text-shadow: 0 0 20px rgba(0, 243, 255, 0.6); }
+        
+        input[type="file"] { display: none; }
+        .file-label {
+            display: inline-block; background: transparent; color: var(--neon-blue); border: 2px solid var(--neon-blue);
+            padding: 12px 30px; border-radius: 30px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; font-size: 1.1rem;
+        }
+        .file-label:hover { background: var(--neon-blue); color: #000; box-shadow: var(--neon-blue-glow); }
+
+        .preview-container { margin-top: 25px; display: none; flex-direction: column; align-items: center; }
+        .preview-img { max-width: 180px; max-height: 180px; border-radius: 15px; border: 2px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); object-fit: cover; }
+        .change-img-btn { margin-top: 10px; color: #888; font-size: 0.9rem; cursor: pointer; text-decoration: underline; background: none; border: none; font-family: 'Kanit'; }
+        .change-img-btn:hover { color: var(--neon-blue); }
+
+        /* การตั้งค่าความแม่นยำ */
+        .settings { margin-top: 25px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; border: 1px solid #222; }
+        .settings h4 { margin: 0 0 10px 0; color: #aaa; font-weight: 400; font-size: 0.95rem; }
+        .radio-group { display: flex; justify-content: center; gap: 15px; }
+        .radio-label { cursor: pointer; font-size: 0.9rem; color: #bbb; display: flex; align-items: center; gap: 5px; }
+        .radio-label input { accent-color: var(--neon-blue); }
+
+        /* ปุ่มค้นหา */
+        .search-btn {
+            margin-top: 25px; background: var(--neon-blue); color: #000; border: none; padding: 15px 40px;
+            border-radius: 30px; font-size: 1.2rem; font-family: 'Kanit', sans-serif; font-weight: 700;
+            cursor: pointer; width: 100%; transition: all 0.3s ease; box-shadow: var(--neon-blue-glow);
+        }
+        .search-btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px #00f3ff, 0 0 40px #00f3ff; }
+        .search-btn:active { transform: translateY(2px); }
+        .search-btn:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        /* สถานะ Loading & Error */
+        .status-box { margin-top: 25px; display: none; padding: 15px; border-radius: 10px; font-weight: 500; font-size: 1.1rem; }
+        .status-loading { color: var(--neon-blue); border: 1px solid var(--neon-blue); background: rgba(0, 243, 255, 0.1); }
+        .status-error { color: var(--neon-red); border: 1px solid var(--neon-red); background: rgba(255, 51, 102, 0.1); box-shadow: 0 0 15px rgba(255, 51, 102, 0.3); }
+
+        /* ผลลัพธ์ (Grid) */
+        .results-container { margin-top: 40px; width: 100%; display: none; }
+        .results-header { text-align: center; margin-bottom: 20px; font-size: 1.5rem; color: var(--neon-white); text-shadow: var(--neon-white-glow); }
+        .grid-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .result-card {
+            background: #111; border: 1px solid #333; border-radius: 12px; overflow: hidden;
+            transition: all 0.3s ease; cursor: pointer; position: relative;
+        }
+        .result-card:hover { transform: translateY(-8px); border-color: var(--neon-blue); box-shadow: var(--neon-blue-glow); z-index: 2; }
+        .result-card img { width: 100%; height: 250px; object-fit: cover; display: block; border-bottom: 1px solid #222; }
+        .result-info { padding: 12px; text-align: center; font-size: 0.9rem; color: var(--neon-blue); font-weight: 500; background: #0a0a0a; }
+        /* Modal (รูปใหญ่) */
+        .modal { display: none; position: fixed; z-index: 999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); justify-content: center; align-items: center; }
+        .modal img { max-width: 90%; max-height: 85vh; border-radius: 10px; border: 2px solid var(--neon-blue); box-shadow: var(--neon-blue-glow); }
+        .modal-close { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .modal-close:hover { color: var(--neon-red); }
+        .download-btn { position: absolute; bottom: 30px; background: var(--neon-blue); color: #000; padding: 10px 25px; border-radius: 20px; text-decoration: none; font-weight: bold; font-family: 'Kanit'; }
+
+        footer { margin-top: 50px; margin-bottom: 30px; font-size: 0.9rem; }
+        footer span.dev-text { color: #666; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="logo"><span class="stss">STSS</span> <span class="studio">STUDIO</span></h1>
+        <div class="subtitle">Face Image Recognition System</div>
+    </header>
+
+    <div class="container">
+        <div class="upload-panel" id="drop-zone">
+            <div id="upload-state">
+                <div class="upload-icon">📷</div>
+                <p style="font-size: 1.1rem;">แตะเพื่ออัปโหลด หรือลากไฟล์มาวางที่นี่<br>
+                <small style="color: #666;">รองรับ JPG, PNG, WEBP (เห็นหน้าชัดเจน)</small></p>
+                <label for="upload-input" class="file-label">เลือกรูปภาพของคุณ</label>
+                <input type="file" id="upload-input" accept="image/jpeg, image/png, image/webp">
+            </div>
+
+            <div class="preview-container" id="preview-state">
+                <img id="preview" class="preview-img" src="" alt="Preview">
+                <button class="change-img-btn" onclick="document.getElementById('upload-input').click()">เปลี่ยนรูปภาพ</button>
+                
+                <div class="settings">
+                    <h4>ความเข้มงวดในการค้นหา (Threshold)</h4>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="threshold" value="0.65"> กว้าง (หาเยอะ)</label>
+                        <label class="radio-label"><input type="radio" name="threshold" value="0.55" checked> ปกติ</label>
+                        <label class="radio-label"><input type="radio" name="threshold" value="0.45"> แม่นยำสูง</label>
+                    </div>
+                </div>
+
+                <button id="searchBtn" class="search-btn">🔍 ค้นหารูปในระบบ</button>
+            </div>
+
+            <div id="statusBox" class="status-box"></div>
+        </div>
+
+        <div id="resultsArea" class="results-container">
+            <h2 class="results-header" id="resultsTitle">ผลการค้นหา</h2>
+            <div class="grid-results" id="resultsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal สำหรับดูรูปเต็ม -->
+    <div id="imageModal" class="modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img id="modalImg" src="">
+        <a id="modalDownload" class="download-btn" href="" download>⬇️ ดาวน์โหลดรูปภาพ</a>
+    </div>
+
+    <footer>
+        <span class="dev-text">System Developed by</span> 
+        <span class="stss">STSS</span> <span class="studio">STUDIO</span>
+    </footer>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const uploadInput = document.getElementById('upload-input');
+        const uploadState = document.getElementById('upload-state');
+        const previewState = document.getElementById('preview-state');
+        const previewImg = document.getElementById('preview');
+        const searchBtn = document.getElementById('searchBtn');
+        const statusBox = document.getElementById('statusBox');
+        const resultsArea = document.getElementById('resultsArea');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const resultsTitle = document.getElementById('resultsTitle');
+
+        // จัดการ Drag & Drop
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault(); dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+        });
+        uploadInput.addEventListener('change', (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showStatus('กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                uploadState.style.display = 'none';
+                previewState.style.display = 'flex';
+                statusBox.style.display = 'none';
+                resultsArea.style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function showStatus(text, type) {
+            statusBox.innerHTML = text;
+            statusBox.className = `status-box status-${type}`;
+            statusBox.style.display = 'block';
+        }
+
+        searchBtn.addEventListener('click', async () => {
+            const file = uploadInput.files[0] || dropZone.file;
+            if (!file && !uploadInput.files[0]) return;
+
+            // ดึงค่า Threshold
+            const threshold = document.querySelector('input[name="threshold"]:checked').value;
+
+            searchBtn.disabled = true;
+            searchBtn.innerText = '⚡ กำลังประมวลผลด้วย AI...';
+            statusBox.style.display = 'none';
+            resultsArea.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append("file", uploadInput.files[0]);
+            formData.append("threshold", threshold);
+
+            try {
+                const response = await fetch("/search", { method: "POST", body: formData });
+                const data = await response.json();
+                
+                searchBtn.disabled = false;
+                searchBtn.innerText = '🔍 ค้นหารูปในระบบอีกครั้ง';
+
+                if (response.status !== 200) throw new Error(data.detail || 'เซิร์ฟเวอร์ขัดข้อง');
+
+                resultsArea.style.display = 'block';
+                
+                if (data.success && data.results.length > 0) {
+                    resultsTitle.innerHTML = `🎉 พบรูปของคุณ ${data.results.length} รูป!`;
+                    resultsGrid.innerHTML = data.results.map(item => `
+                        <div class="result-card" onclick="openModal('${item.image_url}')">
+                            <img src="${item.image_url}" alt="Result">
+                            <div class="result-info">ความเหมือน: ${item.similarity}%</div>
+                        </div>
+                    `).join("");
+                } else {
+                    resultsTitle.innerHTML = `😢 ไม่พบรูปภาพ`;
+                    resultsGrid.innerHTML = `<p style="text-align:center; color:#aaa; width:100%; grid-column: 1 / -1;">${data.message || 'ไม่พบรูปภาพของคุณในคลังระบบ ลองปรับความเข้มงวดให้กว้างขึ้น'}</p>`;
+                }
+
+            } catch (error) {
+                searchBtn.disabled = false;
+                searchBtn.innerText = '🔍 ค้นหารูปในระบบ';
+                showStatus(`❌ พบข้อผิดพลาด: ${error.message}`, 'error');
+            }
+        });
+
+        // ระบบ Modal รูปใหญ่
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalDownload = document.getElementById('modalDownload');
+
+        function openModal(imgUrl) {
+            modalImg.src = imgUrl;
+            modalDownload.href = imgUrl;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() { modal.style.display = 'none'; }
+        // ปิด Modal เมื่อคลิกพื้นที่ว่าง
+        window.onclick = function(event) { if (event.target == modal) closeModal(); }
+    </script>
+</body>
+</html>
