@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.10-slim-bookworm
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
     libsm6 \
     libxext6 \
-    && rm -rf /var/lib/apt-get/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 # ติดตั้ง numpy<2 ล่วงหน้าเพื่อป้องกันปัญหา NumPy 2.x ขัดแย้งกับ ONNXRuntime
 COPY requirements.txt .
