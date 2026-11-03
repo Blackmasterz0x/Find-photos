@@ -2,17 +2,21 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# ติดตั้ง system dependencies ที่จำเป็น (เพิ่ม libgomp1 สำหรับ onnxruntime)
+# ติดตั้ง system dependencies ทั้งหมดที่ OpenCV และ ONNXRuntime บน Linux จำเป็นต้องใช้
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libgl1 \
     libglib2.0-0 \
     libgomp1 \
+    libsm6 \
+    libxext6 \
     && rm -rf /var/lib/apt-get/lists/*
 
-# คัดลอกและติดตั้ง python packages
+# ติดตั้ง numpy<2 ล่วงหน้าเพื่อป้องกันปัญหา NumPy 2.x ขัดแย้งกับ ONNXRuntime
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir "numpy<2" && \
+    pip install --no-cache-dir -r requirements.txt
 
 # ดาวน์โหลดโมเดล InsightFace
 ARG MODEL_NAME=buffalo_sc
