@@ -3,14 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>STSS STUDIO · ค้นหารูปจากใบหน้า</title>
+<title>STSS STUDIO · ระบบค้นหาใบหน้าจากรูปภาพ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#04050a;--cy:#00f3ff;--mg:#b84dff;--rd:#ff4d7a;--gn:#3dffa0;--tx:#e8f1ff;--mu:#8a99b3;--pn:rgba(13,17,30,.74);--bd:rgba(0,243,255,.2)}
+:root{--bg:#04050a;--cy:#00f3ff;--mg:#b84dff;--rd:#ff4d7a;--gn:#3dffa0;--tx:#e8f1ff;--mu:#8a99b3;--pn:rgba(13,17,30,.74);--bd:rgba(0,243,255,.2);
+--warn:#ff4d7a;--warn-deep:#9b3dff;--warn-bd:rgba(255,77,122,.4);
+--fb1:#1877F2;--fb2:#0b5fd1;--ig1:#F58529;--ig2:#DD2A7B;--ig3:#8134AF}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;color:var(--tx);font:400 16px/1.55 Kanit,system-ui,sans-serif;background:var(--bg);overflow-x:hidden}
 [hidden]{display:none!important}
+svg.ic{width:1.1em;height:1.1em;vertical-align:-.18em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
 .bg::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,243,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,243,255,.05) 1px,transparent 1px);background-size:48px 48px;-webkit-mask-image:radial-gradient(ellipse at 50% 25%,#000 15%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 25%,#000 15%,transparent 75%)}
 .orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.4;animation:drift 18s ease-in-out infinite alternate}
@@ -18,11 +21,7 @@ body{margin:0;min-height:100vh;color:var(--tx);font:400 16px/1.55 Kanit,system-u
 .o2{width:500px;height:500px;background:#6a22e8;bottom:-180px;right:-140px;animation-delay:-7s}
 @keyframes drift{to{transform:translate(60px,40px) scale(1.12)}}
 
-header{text-align:center;padding:calc(40px + env(safe-area-inset-top)) 16px 6px}
-.scan{width:76px;height:76px;margin:0 auto 12px;position:relative;filter:drop-shadow(0 0 10px var(--cy))}
-.scan svg{width:100%;height:100%}
-.scan::after{content:"";position:absolute;left:12%;right:12%;height:2px;background:var(--cy);box-shadow:0 0 14px 2px var(--cy);animation:sweep 2.4s ease-in-out infinite}
-@keyframes sweep{0%,100%{top:16%}50%{top:82%}}
+header{text-align:center;padding:calc(48px + env(safe-area-inset-top)) 16px 6px}
 .logo{margin:0;font-weight:800;font-size:clamp(2.7rem,11vw,5.2rem);letter-spacing:.05em;line-height:1.05;display:flex;justify-content:center;flex-wrap:wrap;column-gap:.3em}
 .logo i{display:inline-block;font-style:normal;animation:wave 2.6s ease-in-out infinite;animation-delay:calc(var(--i)*.13s)}
 @keyframes wave{0%,100%{transform:translateY(0)}50%{transform:translateY(-.13em)}}
@@ -38,42 +37,49 @@ header{text-align:center;padding:calc(40px + env(safe-area-inset-top)) 16px 6px}
 .chip.err .dot{background:var(--rd);animation:none}
 @keyframes pulse{50%{opacity:.3;transform:scale(.7)}}
 
-main{width:min(780px,100%);margin:0 auto;padding:22px 16px calc(36px + env(safe-area-inset-bottom))}
+main{width:min(780px,100%);margin:0 auto;padding:22px 16px calc(32px + env(safe-area-inset-bottom))}
 .panel{background:var(--pn);border:1px solid var(--bd);border-radius:24px;padding:22px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 24px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
-.drop{border:2px dashed rgba(0,243,255,.38);border-radius:18px;padding:26px 16px;text-align:center;transition:.25s;cursor:pointer}
+.drop{border:2px dashed rgba(0,243,255,.38);border-radius:18px;padding:30px 16px;text-align:center;transition:.25s;cursor:pointer}
 .drop:hover,.drop.over{border-color:var(--cy);background:rgba(0,243,255,.06);box-shadow:0 0 30px rgba(0,243,255,.16)}
-.drop .ic{font-size:2.5rem;line-height:1}
-.drop p{margin:8px 0 0;color:var(--mu);font-size:.92rem}
+.drop .ic{width:46px;height:46px;stroke-width:1.4;color:var(--cy);filter:drop-shadow(0 0 10px rgba(0,243,255,.5))}
+.drop p{margin:10px 0 0;color:var(--mu);font-size:.92rem}
 .drop b{color:var(--tx);font-weight:500;font-size:1.05rem}
 .pv{display:none;align-items:center;gap:16px;text-align:left}
 .pv img{width:108px;height:108px;object-fit:cover;border-radius:16px;border:2px solid var(--cy);box-shadow:0 0 24px rgba(0,243,255,.35);flex:none}
 .has .idle{display:none}.has .pv{display:flex}
 .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.btn{flex:1;min-width:140px;font:500 1rem Kanit,sans-serif;color:var(--tx);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:12px 16px;cursor:pointer;transition:.2s}
+.btn{flex:1;min-width:140px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font:500 1rem Kanit,sans-serif;color:var(--tx);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:12px 16px;cursor:pointer;transition:.2s}
 .btn:hover:not(:disabled){border-color:var(--cy);box-shadow:0 0 18px rgba(0,243,255,.28);transform:translateY(-1px)}
-.btn.pri{background:linear-gradient(135deg,var(--cy),#3b82ff 60%,var(--mg));color:#00121a;font-weight:700;border:0;box-shadow:0 0 26px rgba(0,243,255,.4)}
+.btn.pri{background:linear-gradient(135deg,var(--cy),#3b82ff 60%,var(--mg));color:#00121a;font-weight:700;border:0;box-shadow:0 0 26px rgba(0,243,255,.4);animation:breathe 3s ease-in-out infinite}
+.btn.pri:disabled{animation:none}
+@keyframes breathe{50%{box-shadow:0 0 40px rgba(0,243,255,.6)}}
 .btn:disabled{opacity:.42;cursor:not-allowed}
-.btn:focus-visible,.seg input:focus-visible+span,.x:focus-visible,.card:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.btn:focus-visible,.seg input:focus-visible+span,.x:focus-visible,.card:focus-visible,.social:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
 .lbl{margin:20px 0 8px;color:var(--mu);font-size:.9rem}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:5px;background:rgba(0,0,0,.4);border-radius:14px;border:1px solid rgba(255,255,255,.08)}
 .seg label{position:relative;cursor:pointer}.seg input{position:absolute;opacity:0;inset:0}
-.seg span{display:block;text-align:center;padding:9px 6px;border-radius:10px;font-size:.92rem;color:var(--mu);transition:.2s}
+.seg span{position:relative;display:block;text-align:center;padding:9px 6px;border-radius:10px;font-size:.92rem;color:var(--mu);transition:color .2s,transform .2s;overflow:hidden}
+.seg span::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(0,243,255,.4) 50%,transparent 65%);transform:translateX(-140%);transition:transform .55s ease}
+.seg label:hover span{color:var(--cy);transform:translateY(-1px)}
+.seg label:hover span::after{transform:translateX(140%)}
 .seg input:checked+span{background:rgba(0,243,255,.14);color:var(--cy);box-shadow:inset 0 0 0 1px var(--cy),0 0 16px rgba(0,243,255,.25)}
+.seg input:checked+span::after{display:none}
 .hint{margin:8px 2px 0;color:var(--mu);font-size:.85rem;min-height:1.3em}
-.code{width:100%;margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.4);color:var(--tx);font:400 1rem Kanit,sans-serif}
-.code:focus{outline:2px solid var(--cy);border-color:transparent}
 .note{margin-top:16px;padding:13px 16px;border-radius:12px;font-size:.95rem;border:1px solid var(--rd);background:rgba(255,77,122,.1);color:#ffc2d1}
 .note.info{border-color:var(--cy);background:rgba(0,243,255,.08);color:var(--tx)}
 .note button{margin-left:8px;background:none;border:0;color:var(--cy);font:inherit;text-decoration:underline;cursor:pointer}
 
 #res{margin-top:34px}
-.rh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.rh h2{margin:0;font-size:1.35rem;font-weight:500}.rh span{color:var(--mu);font-size:.88rem}
+.rh{margin-bottom:14px}
+.rh h2{margin:0 0 4px;font-size:1.35rem;font-weight:500;display:flex;align-items:center;gap:8px}
+.rh h2 svg{color:var(--gn);filter:drop-shadow(0 0 6px rgba(61,255,160,.6))}
+.rh p{margin:0;color:var(--mu);font-size:.88rem}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
 .card{position:relative;border-radius:16px;overflow:hidden;background:#0b0e18;border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:.25s;aspect-ratio:4/5;padding:0;display:block}
-.card:hover{transform:translateY(-5px);border-color:var(--cy);box-shadow:0 0 26px rgba(0,243,255,.3)}
+.card:hover{transform:translateY(-5px) scale(1.015);border-color:var(--cy);box-shadow:0 0 26px rgba(0,243,255,.3)}
 .card img{width:100%;height:100%;object-fit:cover;display:block}
-.ph{display:grid;place-items:center;height:100%;font-size:2.2rem;color:var(--mu)}
+.ph{display:grid;place-items:center;height:100%;color:var(--mu)}
+.ph svg{width:2em;height:2em}
 .pct{position:absolute;left:8px;bottom:8px;padding:2px 10px;border-radius:99px;background:rgba(0,0,0,.72);border:1px solid var(--cy);color:var(--cy);font-size:.82rem;font-weight:500;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .sk{aspect-ratio:4/5;border-radius:16px;background:linear-gradient(100deg,#0d1220 30%,#18213a 50%,#0d1220 70%) 0 0/300% 100%;animation:sk 1.3s linear infinite}
 @keyframes sk{to{background-position:-300% 0}}
@@ -84,32 +90,78 @@ main{width:min(780px,100%);margin:0 auto;padding:22px 16px calc(36px + env(safe-
 .lb .bar{display:flex;gap:10px;align-items:center}.lb .bar .btn{flex:none;min-width:0;padding:10px 18px;text-decoration:none}
 .x{position:absolute;top:calc(10px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font-size:1.5rem;cursor:pointer}
 .x:hover{border-color:var(--rd);color:var(--rd)}
-footer{text-align:center;color:var(--mu);font-size:.88rem;padding:0 16px 34px}
+
+.modal{position:fixed;inset:0;z-index:60;background:rgba(3,1,0,.96);display:none;align-items:center;justify-content:center;padding:18px}
+.modal.on{display:flex}
+.modal-box{width:min(620px,100%);max-height:min(84vh,720px);display:flex;flex-direction:column;background:var(--pn);border:1.5px solid var(--warn-bd);border-radius:20px;box-shadow:0 30px 70px rgba(0,0,0,.7),0 0 70px rgba(255,77,122,.2);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);animation:modalIn .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(.9) translateY(14px)}to{opacity:1;transform:none}}
+.modal-box::before{content:"";display:block;height:4px;border-radius:20px 20px 0 0;background:linear-gradient(90deg,var(--warn),var(--warn-deep),var(--warn))}
+.modal-head{display:flex;align-items:center;gap:12px;padding:20px 22px 14px;border-bottom:1px solid rgba(255,77,122,.18)}
+.modal-head svg{color:var(--warn);width:28px;height:28px;flex:none;filter:drop-shadow(0 0 10px rgba(255,77,122,.7));animation:warnJolt 1.8s ease-in-out infinite}
+@keyframes warnJolt{0%,100%{transform:rotate(0)}6%{transform:rotate(-8deg)}12%{transform:rotate(7deg)}18%{transform:rotate(0)}}
+.modal-head h2{margin:0;font-size:1.2rem;font-weight:700;display:flex;align-items:center}
+.bang{display:inline-flex;align-items:center;justify-content:center;width:1.3em;height:1.3em;margin-left:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--warn),var(--warn-deep));color:#fff5ee;font-weight:800;font-size:.8em;box-shadow:0 0 14px rgba(255,77,122,.75),0 0 30px rgba(255,77,122,.4);animation:bangPulse 1.5s ease-in-out infinite}
+@keyframes bangPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
+.modal-body{overflow-y:auto;padding:16px 22px;color:var(--tx);font-size:.92rem;line-height:1.7}
+.modal-body::-webkit-scrollbar{width:8px}
+.modal-body::-webkit-scrollbar-thumb{background:rgba(255,77,122,.3);border-radius:4px}
+.modal-body h3{color:var(--warn);font-size:1rem;font-weight:600;margin:18px 0 6px}
+.modal-body h3:first-child{margin-top:0}
+.modal-body p{margin:0 0 10px;color:var(--mu)}
+.modal-body b{color:var(--tx);font-weight:500}
+.modal-body a{color:var(--warn)}
+.modal-note{margin-top:14px!important;padding:12px 14px;border:1px solid var(--warn-bd);border-radius:10px;background:rgba(255,77,122,.08);color:var(--tx)!important;font-weight:500}
+.modal-foot{display:flex;gap:10px;padding:16px 22px;border-top:1px solid rgba(255,77,122,.18)}
+.modal-foot .btn{flex:1}
+.btn.warn{background:linear-gradient(135deg,var(--warn),var(--warn-deep) 60%,#6a2bd9);color:#fff5fb;text-shadow:0 1px 3px rgba(0,0,0,.35);font-weight:700;border:0;box-shadow:0 0 26px rgba(255,77,122,.45);animation:warnBreathe 2.2s ease-in-out infinite}
+.btn.warn:hover{filter:brightness(1.08);box-shadow:0 0 46px rgba(255,77,122,.75);transform:translateY(-1px)}
+@keyframes warnBreathe{50%{box-shadow:0 0 42px rgba(255,77,122,.7)}}
+.tnc-link{background:none;border:0;color:var(--mu);text-decoration:underline;font:inherit;cursor:pointer;padding:0}
+.tnc-link:hover{color:var(--cy)}
+footer{text-align:center;padding:6px 16px 36px}
+.socials{display:flex;justify-content:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.social{display:inline-flex;align-items:center;gap:9px;padding:11px 22px;border-radius:99px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);color:var(--tx);font-weight:500;font-size:.95rem;transition:.25s}
+.social svg{width:20px;height:20px;flex:none}
+.social.fb{--c1:var(--fb1);--c2:var(--fb2)}
+.social.ig{--c1:var(--ig1);--c2:var(--ig3)}
+.social.fb svg{stroke:none;fill:url(#fbGrad)}
+.social.ig svg{stroke:url(#igGrad);fill:none}
+.social:hover{border-color:transparent;background:linear-gradient(135deg,color-mix(in srgb,var(--c1) 22%,transparent),color-mix(in srgb,var(--c2) 22%,transparent));box-shadow:0 0 24px color-mix(in srgb,var(--c1) 55%,transparent),0 0 44px color-mix(in srgb,var(--c2) 35%,transparent);transform:translateY(-2px)}
+footer p{margin:5px 0;color:var(--mu);font-size:.88rem}
 footer b{color:var(--cy);font-weight:700}
+footer a{color:var(--cy)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="fbGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1877F2"/><stop offset="100%" stop-color="#0b5fd1"/></linearGradient>
+    <linearGradient id="igGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#F58529"/><stop offset="45%" stop-color="#DD2A7B"/><stop offset="100%" stop-color="#8134AF"/></linearGradient>
+  </defs>
+</svg>
 <div class="bg"><div class="orb o1"></div><div class="orb o2"></div></div>
 
 <header>
-  <div class="scan" aria-hidden="true"><svg viewBox="0 0 76 76" fill="none" stroke="#00f3ff" stroke-width="2.5" stroke-linecap="round"><path d="M6 22V10a4 4 0 0 1 4-4h12M54 6h12a4 4 0 0 1 4 4v12M70 54v12a4 4 0 0 1-4 4H54M22 70H10a4 4 0 0 1-4-4V54"/><ellipse cx="38" cy="38" rx="14" ry="18" stroke-width="2"/><path d="M31 33v2M45 33v2M32 46q6 5 12 0" stroke-width="2"/></svg></div>
   <h1 class="logo" aria-label="STSS STUDIO"><span class="stss" data-wave="STSS" aria-hidden="true"></span><span class="studio" data-wave="STUDIO" aria-hidden="true"></span></h1>
-  <p class="sub">ค้นหารูปของคุณด้วยระบบจดจำใบหน้า</p>
+  <p class="sub">ระบบค้นหาใบหน้าจากรูปภาพ</p>
   <div class="chip" id="chip" role="status"><span class="dot"></span><span id="chipTxt">กำลังเชื่อมต่อระบบ…</span></div>
 </header>
 
 <main>
   <section class="panel" aria-label="ค้นหารูป">
     <div class="drop" id="drop" tabindex="0" role="button" aria-label="เลือกรูปใบหน้า">
-      <div class="idle"><div class="ic">🧑‍🎤</div><p><b>วางรูปใบหน้าของคุณที่นี่</b></p><p>ลากไฟล์มาวาง หรือกดเพื่อเลือก · JPG, PNG, WEBP</p></div>
+      <div class="idle">
+        <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7l1.6-2.6A1.6 1.6 0 0 1 10.9 3.6h2.2a1.6 1.6 0 0 1 1.3.8L16 7"/><circle cx="12" cy="13.5" r="3.6"/></svg>
+        <p><b>วางรูปใบหน้าของคุณที่นี่</b></p><p>ลากไฟล์มาวาง หรือกดเพื่อเลือก · JPG, PNG, WEBP</p>
+      </div>
       <div class="pv"><img id="pv" alt="รูปที่เลือก"><div><b id="pvName">รูปพร้อมค้นหา</b><p style="margin:2px 0 0;color:var(--mu);font-size:.9rem">กด “ค้นหารูปของฉัน” ได้เลย</p></div></div>
     </div>
     <input type="file" id="fileIn" accept="image/jpeg,image/png,image/webp" hidden>
     <input type="file" id="camIn" accept="image/*" capture="user" hidden>
     <div class="row">
-      <button class="btn" id="pickBtn" type="button">📁 เลือกรูป</button>
-      <button class="btn" id="camBtn" type="button">📸 ถ่ายรูป</button>
+      <button class="btn" id="pickBtn" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M21 7.5V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4.5l2 2.5H19a2 2 0 0 1 2 2z"/></svg>เลือกรูป</button>
+      <button class="btn" id="camBtn" type="button"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7l1.6-2.6A1.6 1.6 0 0 1 10.9 3.6h2.2a1.6 1.6 0 0 1 1.3.8L16 7"/><circle cx="12" cy="13.5" r="3.6"/></svg>ถ่ายรูป</button>
     </div>
 
     <div class="lbl" id="lvlLbl">ความเข้มงวดในการค้นหา</div>
@@ -119,45 +171,108 @@ footer b{color:var(--cy);font-weight:700}
       <label><input type="radio" name="lv" value="0.55" data-h="แม่นยำสูง เหมาะกับรูปหน้าตรงชัดเจน แต่อาจพลาดบางรูป"><span>แม่นยำ</span></label>
     </div>
     <p class="hint" id="hint"></p>
-    <input class="code" id="code" type="password" placeholder="รหัสเข้าใช้งาน" autocomplete="off" hidden>
 
     <div class="row">
-      <button class="btn pri" id="goBtn" type="button" disabled>🔍 ค้นหารูปของฉัน</button>
+      <button class="btn pri" id="goBtn" type="button" disabled><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>ค้นหารูปของฉัน</button>
       <button class="btn" id="clrBtn" type="button" style="flex:0 0 auto;min-width:0" disabled>ล้างทั้งหมด</button>
     </div>
     <div id="note" role="alert" hidden></div>
   </section>
 
   <section id="res" hidden>
-    <div class="rh"><h2 id="resT"></h2><span id="resS"></span></div>
+    <div class="rh"><h2 id="resT"></h2><p id="resS"></p></div>
     <div class="grid" id="grid"></div>
   </section>
 </main>
 
-<footer>ระบบพัฒนาโดย <b>STSS</b> STUDIO · รูปที่อัปโหลดใช้เพื่อค้นหาเท่านั้น ไม่ถูกบันทึกไว้</footer>
+<footer>
+  <div class="socials">
+    <a class="social fb" href="https://www.facebook.com/share/19kwTmSCsN/?mibextid=wwXIfr" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M15 3h-2.5A4.5 4.5 0 0 0 8 7.5V10H6v4h2v7h4v-7h3l.6-4H12V7.8a1 1 0 0 1 1-1H15z"/></svg>Facebook
+    </a>
+    <a class="social ig" href="https://www.instagram.com/stss_studio?dlrf=OTZydDRhMHBmd2wz" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="6"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="url(#igGrad)" stroke="none"/></svg>Instagram
+    </a>
+  </div>
+  <p>พัฒนาโดย <b>STSS</b> STUDIO</p>
+  <p><button class="tnc-link" id="tncOpen" type="button">ข้อกำหนดและเงื่อนไขการใช้งาน</button></p>
+  <p>พบปัญหาการใช้งาน แจ้งได้ที่ <a href="mailto:stss_studio@stss.ac.th">stss_studio@stss.ac.th</a></p>
+</footer>
+
+<div class="modal" id="tnc" role="dialog" aria-modal="true" aria-labelledby="tncTitle">
+  <div class="modal-box">
+    <div class="modal-head">
+      <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17H2.5L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.2" r=".4" fill="currentColor" stroke="none"/></svg>
+      <h2 id="tncTitle">ข้อกำหนดและเงื่อนไขการใช้งาน<span class="bang" aria-hidden="true">!</span></h2>
+    </div>
+    <div class="modal-body">
+      <p>ประกาศฉบับนี้จัดทำขึ้นเพื่อกำหนดเงื่อนไขการใช้งานระบบค้นหารูปภาพด้วยเทคโนโลยีปัญญาประดิษฐ์ (Facial Recognition Search System) ซึ่งจัดทำและพัฒนาโดย STSS STUDIO ขอความกรุณาผู้ใช้งานอ่านและทำความเข้าใจข้อกำหนดต่อไปนี้อย่างละเอียดก่อนเริ่มต้นใช้งานระบบ</p>
+
+      <h3>1. นโยบายการคุ้มครองข้อมูลส่วนบุคคล (PDPA)</h3>
+      <p>ระบบของเราให้ความสำคัญสูงสุดกับความปลอดภัยและความเป็นส่วนตัวของผู้ใช้งาน และดำเนินการภายใต้พระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) อย่างเคร่งครัด</p>
+      <p><b>วัตถุประสงค์ในการประมวลผล</b> — รูปภาพใบหน้า (ข้อมูลชีวมิติ) ที่ท่านอัปโหลด จะถูกนำไปใช้เพื่อสกัดจุดเด่นของใบหน้าและเปรียบเทียบเพื่อค้นหาความตรงกันของภาพในระบบเท่านั้น</p>
+      <p><b>การไม่เก็บบันทึกข้อมูล</b> — รูปภาพต้นฉบับและข้อมูลโครงสร้างใบหน้าที่อัปโหลด จะถูกประมวลผลแบบเรียลไทม์ และลบออกจากหน่วยความจำชั่วคราวทันทีที่การค้นหาเสร็จสิ้น ทาง STSS STUDIO ยืนยันว่าจะไม่มีการบันทึก จัดเก็บ คัดลอก หรือทำสำเนาข้อมูลของท่านลงในเครื่องแม่ข่ายหรือฐานข้อมูลใดๆ ทั้งสิ้น</p>
+      <p><b>การให้ความยินยอม</b> — การที่ท่านกดปุ่มยอมรับเงื่อนไขและทำการอัปโหลดรูปภาพ ถือว่าท่านได้ให้ความยินยอมโดยชัดแจ้งในการประมวลผลข้อมูลส่วนบุคคลสำหรับวัตถุประสงค์การค้นหาในครั้งนั้นๆ</p>
+
+      <h3>2. ข้อจำกัดของเทคโนโลยีปัญญาประดิษฐ์</h3>
+      <p>ผลลัพธ์ของการค้นหาถูกประมวลผลโดยอัลกอริทึมวิเคราะห์ใบหน้า ซึ่งความแม่นยำและประสิทธิภาพในการตรวจจับอาจแปรผันตามปัจจัยทางกายภาพหลายประการ เช่น คุณภาพและความละเอียดของรูปภาพที่อัปโหลด สภาพแสง ความคมชัด มุมกล้อง ตลอดจนการสวมใส่สิ่งกีดขวางใบหน้า (เช่น แว่นตา หรือหน้ากากอนามัย) ทางทีมผู้พัฒนาไม่สามารถรับรองผลลัพธ์การค้นหาที่ถูกต้องสมบูรณ์ได้ในทุกกรณี</p>
+
+      <h3>3. ระยะเวลาการตอบสนองและสถานะพักการทำงานของระบบ</h3>
+      <p>เพื่อการบริหารจัดการทรัพยากรระบบอย่างมีประสิทธิภาพ หากไม่มีผู้เข้าใช้งานเว็บไซต์เป็นระยะเวลาหนึ่ง ระบบเซิร์ฟเวอร์และปัญญาประดิษฐ์จะเข้าสู่โหมดพักการทำงานชั่วคราว ดังนั้นหากท่านเข้าใช้งานในขณะที่ระบบกำลังอยู่ในโหมดพัก การอัปโหลดและประมวลผลในครั้งแรกอาจใช้เวลาปลุกระบบนานกว่าปกติ (ประมาณ 1–2 นาที) ทั้งนี้หลังจากระบบกลับมาตื่นตัวเต็มที่แล้ว การค้นหาในครั้งต่อๆ ไปจะประมวลผลและแสดงผลได้อย่างรวดเร็วตามปกติ</p>
+
+      <h3>4. ขอบเขตการใช้งานที่เหมาะสม</h3>
+      <p>ผู้ใช้งานตกลงที่จะใช้บริการระบบค้นหารูปภาพนี้อย่างสุจริต โดยห้ามมิให้นำระบบไปใช้ในทางที่ผิดกฎหมาย ละเมิดสิทธิส่วนบุคคล คุกคาม หรือก่อให้เกิดความเสื่อมเสียต่อบุคคลที่สาม ทางทีมผู้พัฒนาขอสงวนสิทธิ์ในการปฏิเสธการให้บริการหรือระงับการเข้าถึงระบบ หากตรวจพบการใช้งานที่ละเมิดข้อตกลงดังกล่าว</p>
+
+      <h3>5. ช่องทางการติดต่อและการแจ้งปัญหา</h3>
+      <p>หากท่านพบความผิดปกติของระบบ มีข้อสงสัยเกี่ยวกับนโยบายความเป็นส่วนตัว (PDPA) หรือต้องการรายงานปัญหาการใช้งาน สามารถติดต่อทีมผู้พัฒนาได้โดยตรงผ่านช่องทางอีเมล <a href="mailto:stss_studio@stss.ac.th">stss_studio@stss.ac.th</a></p>
+
+      <p class="modal-note">การที่ท่านดำเนินการคลิกปุ่ม “ข้าพเจ้าเข้าใจและยอมรับเงื่อนไข” หรือเริ่มต้นใช้งานด้วยการอัปโหลดรูปภาพ ถือว่าท่านได้อ่าน ทำความเข้าใจ และยินยอมปฏิบัติตามเงื่อนไขการให้บริการและนโยบายการคุ้มครองข้อมูลส่วนบุคคลที่ระบุไว้ข้างต้นนี้ครบถ้วนทุกประการ</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="tncClose" type="button">ปิด</button>
+      <button class="btn warn" id="tncAccept" type="button">ข้าพเจ้าเข้าใจและยอมรับเงื่อนไข</button>
+    </div>
+  </div>
+</div>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="ดูรูปขนาดเต็ม">
   <button class="x" id="lbX" aria-label="ปิด">×</button>
   <img id="lbImg" alt="">
-  <div class="bar"><button class="btn" id="prev" aria-label="รูปก่อนหน้า">‹</button><span id="lbN" style="color:var(--mu);min-width:56px;text-align:center"></span><button class="btn" id="next" aria-label="รูปถัดไป">›</button><a class="btn" id="lbDl" target="_blank" rel="noopener">⬇️ ดาวน์โหลดต้นฉบับ</a><a class="btn" id="lbOpen" target="_blank" rel="noopener">เปิดใน Drive</a></div>
+  <div class="bar">
+    <button class="btn" id="prev" aria-label="รูปก่อนหน้า">‹</button><span id="lbN" style="color:var(--mu);min-width:56px;text-align:center"></span><button class="btn" id="next" aria-label="รูปถัดไป">›</button>
+    <a class="btn" id="lbDl" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 18v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>ดาวน์โหลด</a>
+    <a class="btn" id="lbOpen" target="_blank" rel="noopener">เปิดใน Drive</a>
+  </div>
 </div>
 
 <script>
 const API = "";   // ใช้โฮสต์เดียวกัน = ว่างไว้ | ถ้าแยกโฮสต์ UI ใส่ URL ของ API เช่น "https://xxx.onrender.com"
 const $ = s => document.querySelector(s);
-const U = u => u.startsWith("/") ? API + u : u;   // ลิงก์ Drive ใช้ตรง ๆ, ลิงก์ในเซิร์ฟเวอร์ต่อ API ให้
+const U = u => u.startsWith("/") ? API + u : u;
 let file = null, results = [], cur = 0, busy = false;
+const PH_SVG = '<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5"></rect><path d="M3 16l5-5 3 3 5-6 5 5"></path></svg>';
 
 document.querySelectorAll("[data-wave]").forEach(el => {
   el.innerHTML = [...el.dataset.wave].map((c, i) => `<i style="--i:${i}">${c}</i>`).join("");
 });
+
+/* ---------- ข้อกำหนดและเงื่อนไขการใช้งาน ---------- */
+const CKEY = "stss_tnc_accept_v1";
+const consented = () => { try { return localStorage.getItem(CKEY) === "1"; } catch { return false; } };
+const openTnc = () => { $("#tnc").classList.add("on"); document.body.style.overflow = "hidden"; };
+const closeTnc = () => { $("#tnc").classList.remove("on"); document.body.style.overflow = ""; };
+$("#tncOpen").onclick = openTnc;
+$("#tncClose").onclick = closeTnc;
+$("#tncAccept").onclick = () => { try { localStorage.setItem(CKEY, "1"); } catch {} closeTnc(); };
+$("#tnc").onclick = e => { if (e.target.id === "tnc") closeTnc(); };
+addEventListener("keydown", e => { if ($("#tnc").classList.contains("on") && e.key === "Escape") closeTnc(); });
+if (!consented()) openTnc();   // แสดงอัตโนมัติจนกว่าจะกดยอมรับ
 
 /* ---------- สถานะระบบ ---------- */
 function chip(kind, txt) { $("#chip").className = "chip " + kind; $("#chipTxt").textContent = txt; }
 async function ping(n = 0) {
   try {
     const d = await (await fetch(API + "/api/info", { cache: "no-store" })).json();
-    $("#code").hidden = !d.needs_code;
     chip(d.photos ? "ok" : "err", d.photos ? `ระบบพร้อมใช้งาน · ${d.photos.toLocaleString()} รูปในคลัง` : "ยังไม่มีรูปในคลัง");
     if (!d.ready) throw 0;
   } catch { chip("", n ? "กำลังปลุกระบบ… ครั้งแรกอาจรอประมาณ 1 นาที" : "กำลังเชื่อมต่อระบบ…"); if (n < 40) setTimeout(() => ping(n + 1), 4000); else chip("err", "เชื่อมต่อไม่ได้ ลองรีเฟรชหน้านี้"); }
@@ -173,7 +288,7 @@ function say(msg, info, action) {
   n.className = "note" + (info ? " info" : ""); n.textContent = msg;
   if (action) { const b = document.createElement("button"); b.textContent = action[0]; b.onclick = action[1]; n.append(b); }
 }
-async function shrink(f) {            // ย่อรูปก่อนส่ง: เร็วขึ้น ประหยัดเน็ตมือถือ
+async function shrink(f) {
   try {
     const bm = await createImageBitmap(f, { imageOrientation: "from-image" });
     const k = Math.min(1, 1280 / Math.max(bm.width, bm.height));
@@ -205,13 +320,13 @@ $("#clrBtn").onclick = () => { file = null; $("#drop").classList.remove("has"); 
 function skeleton() { $("#res").hidden = false; $("#resT").textContent = "กำลังสแกนใบหน้า…"; $("#resS").textContent = ""; $("#grid").innerHTML = '<div class="sk"></div>'.repeat(6); }
 async function search() {
   if (!file || busy) return;
-  busy = true; $("#goBtn").disabled = true; $("#goBtn").textContent = "⚡ กำลังค้นหา…"; say(""); skeleton();
+  if (!consented()) return openTnc();
+  busy = true; $("#goBtn").disabled = true; say(""); skeleton();
   const slow = setTimeout(() => say("ระบบกำลังตื่นจากโหมดพัก รออีกสักครู่นะ…", true), 6000);
   try {
     const fd = new FormData();
     fd.append("file", file, "query.jpg");
     fd.append("min_similarity", document.querySelector("input[name=lv]:checked").value);
-    fd.append("code", $("#code").value);
     const r = await fetch(API + "/api/search", { method: "POST", body: fd });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(d.detail || `เซิร์ฟเวอร์ขัดข้อง (${r.status})`);
@@ -219,18 +334,25 @@ async function search() {
     results = d.results; render(d);
   } catch (e) {
     $("#res").hidden = true; say(e.message === "Failed to fetch" ? "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้งในอีกสักครู่" : e.message);
-  } finally { clearTimeout(slow); if ($("#note").classList.contains("info")) say(""); busy = false; $("#goBtn").disabled = false; $("#goBtn").textContent = "🔍 ค้นหารูปของฉัน"; }
+  } finally { clearTimeout(slow); if ($("#note").classList.contains("info")) say(""); busy = false; $("#goBtn").disabled = false; }
 }
 function render(d) {
   $("#res").hidden = false;
-  $("#resS").textContent = [d.total > d.shown ? `แสดง ${d.shown} รูปที่เหมือนที่สุด` : "", d.faces_in_upload > 1 ? "พบหลายใบหน้าในรูป ระบบใช้ใบหน้าที่ใหญ่ที่สุด" : ""].filter(Boolean).join(" · ");
+  let extra = [];
+  if (d.total > d.shown) extra.push(`แสดง ${d.shown} รูปที่เหมือนที่สุดจากทั้งหมด ${d.total} รูป`);
+  if (d.faces_in_upload > 1) extra.push("พบหลายใบหน้าในรูปที่อัปโหลด ระบบเลือกใช้ใบหน้าที่ใหญ่ที่สุด");
+  $("#resS").textContent = extra.join(" ");
   if (!results.length) {
-    $("#resT").textContent = "ไม่พบรูปที่ตรงกัน"; $("#grid").innerHTML = "";
+    $("#resT").innerHTML = `<svg class="ic" viewBox="0 0 24 24" style="color:var(--mu)"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M8.5 15.5a5 5 0 0 1 7 0"/></svg>ไม่พบรูปที่ตรงกัน`;
+    $("#grid").innerHTML = ""; $("#resS").textContent = "";
     const wider = document.querySelector("input[name=lv]:checked").value !== "0.35";
     return say("ลองปรับความเข้มงวดให้กว้างขึ้น หรือใช้รูปหน้าตรงที่สว่างกว่านี้", true, wider ? ["ค้นหาแบบกว้าง", () => { document.querySelector("input[name=lv][value='0.35']").checked = true; hint(); search(); }] : null);
   }
-  $("#resT").textContent = `🎉 พบรูปของคุณ ${d.total} รูป`;
-  $("#grid").innerHTML = results.map((x, i) => `<button class="card" data-i="${i}" aria-label="เปิดรูปที่ ${i + 1} ความเหมือน ${x.similarity}%"><img src="${U(x.thumb)}" loading="lazy" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ph',textContent:'🖼️'}))"><span class="pct">${x.similarity}%</span></button>`).join("");
+  $("#resT").innerHTML = `<svg class="ic" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>พบรูปของคุณ ${d.total} รูป`;
+  $("#grid").innerHTML = results.map((x, i) => `<button class="card" data-i="${i}" aria-label="เปิดรูปที่ ${i + 1} ความเหมือน ${x.similarity}%"><img src="${U(x.thumb)}" loading="lazy" alt="" referrerpolicy="no-referrer"><span class="pct">${x.similarity}%</span></button>`).join("");
+  $("#grid").querySelectorAll("img").forEach(img => img.addEventListener("error", () => {
+    img.replaceWith(Object.assign(document.createElement("span"), { className: "ph", innerHTML: PH_SVG }));
+  }, { once: true }));
   $("#res").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 $("#goBtn").onclick = search;
@@ -239,7 +361,7 @@ $("#grid").onclick = e => { const c = e.target.closest(".card"); if (c) show(+c.
 /* ---------- ดูรูปเต็ม ---------- */
 function show(i) {
   cur = (i + results.length) % results.length; const x = results[cur];
-  $("#lbImg").src = U(x.full); $("#lbDl").href = U(x.download); $("#lbOpen").href = U(x.open);
+  $("#lbImg").src = U(x.full); $("#lbDl").href = U(x.download); $("#lbDl").download = `STSS-${cur + 1}.jpg`; $("#lbOpen").href = U(x.open);
   $("#lbN").textContent = `${cur + 1} / ${results.length}`; $("#lb").classList.add("on"); document.body.style.overflow = "hidden";
 }
 const hide = () => { $("#lb").classList.remove("on"); document.body.style.overflow = ""; };
