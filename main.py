@@ -1,9 +1,9 @@
-import io, os, time
+import io, json, os, time, urllib.request
 from collections import defaultdict, deque
 
 import cv2
 import numpy as np
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -12,6 +12,7 @@ from PIL import Image, ImageOps
 
 MODEL = os.getenv("MODEL_NAME", "buffalo_sc")
 ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")    # ใส่โดเมนโรงเรียนเมื่อแยกโฮสต์ UI
+SHEET_LOG_URL = os.getenv("SHEET_LOG_URL", "")             # ลิงก์ Apps Script Web App สำหรับส่ง log เข้า Google Sheet
 MAX_BYTES, RATE_PER_MIN = 10 * 1024 * 1024, 12
 
 app = FastAPI(title="STSS STUDIO Face Search")
@@ -33,24 +34,24 @@ def startup():
     if not os.path.exists(path):
         print("⚠️ ไม่พบ data/embeddings.npz — รัน build_index.py ก่อน")
         return
-    
+
     z = np.load(path)
-    
+
     emb_data = z["embeddings"] if "embeddings" in z else z["emb"]
     emb_data = emb_data.astype(np.float32)
-    
+
     # แก้ปัญหาเปอร์เซ็นต์เกิน 100% (Normalization)
     norms = np.linalg.norm(emb_data, axis=1, keepdims=True)
     emb_data = np.divide(emb_data, norms, out=emb_data, where=norms != 0)
 
     owner_data = z["owner"] if "owner" in z else np.arange(len(emb_data), dtype=np.int32)
-    
-    S.update(emb=emb_data, 
-             owner=owner_data, 
-             names=z["names"], 
+
+    S.update(emb=emb_data,
+             owner=owner_data,
+             names=z["names"],
              src="drive",  # บังคับดึงรูปจาก Google Drive เสมอ (แก้รูปไม่ขึ้น)
              scale=1.0)
-             
+
     print(f"✅ พร้อมใช้งาน: {len(S['names'])} รูป / {len(S['emb'])} ใบหน้า / โมเดล {MODEL}")
 
 
@@ -76,6 +77,25 @@ def guard(request: Request):
     if len(q) >= RATE_PER_MIN:
         raise HTTPException(429, "ค้นหาถี่เกินไป รอ 1 นาทีแล้วลองใหม่")
     q.append(now)
+    return ip
+
+
+def send_to_sheet(row: dict):
+    if not SHEET_LOG_URL:
+        return
+    try:
+        req = urllib.request.Request(SHEET_LOG_URL, data=json.dumps(row).encode(),
+                                      headers={"Content-Type": "application/json"}, method="POST")
+        urllib.request.urlopen(req, timeout=5)
+    except Exception as e:
+        print(f"[sheet] ส่ง log เข้าชีตไม่สำเร็จ: {e}", flush=True)   # ไม่ทำให้การค้นหาของผู้ใช้ล้มเหลวตามไปด้วย
+
+
+def log(ip, thr, outcome, t0, bg: BackgroundTasks, faces=0, matches=0):
+    # บันทึกเฉพาะสถิติ ไม่เก็บตัวรูปภาพหรือค่า embedding ใบหน้า (ให้ตรงกับข้อกำหนดที่แจ้งผู้ใช้ไว้)
+    ms = int((time.time() - t0) * 1000)
+    print(f"[search] ip={ip} thr={thr} outcome={outcome} faces={faces} matches={matches} ms={ms}", flush=True)
+    bg.add_task(send_to_sheet, {"ip": ip, "threshold": thr, "outcome": outcome, "faces": faces, "matches": matches, "ms": ms})
 
 
 @app.get("/api/info")
@@ -84,20 +104,25 @@ def info():
 
 
 @app.post("/api/search")
-def search(request: Request, file: UploadFile = File(...), min_similarity: float = Form(0.45)):
-    guard(request)
+def search(request: Request, background_tasks: BackgroundTasks, file: UploadFile = File(...), min_similarity: float = Form(0.45)):
+    ip = guard(request)
+    t0 = time.time()
     raw = file.file.read(MAX_BYTES + 1)
     if len(raw) > MAX_BYTES:
+        log(ip, min_similarity, "too_large", t0, background_tasks)
         raise HTTPException(413, "ไฟล์ใหญ่เกิน 10MB")
     try:
         im = ImageOps.exif_transpose(Image.open(io.BytesIO(raw))).convert("RGB")
     except Exception:
+        log(ip, min_similarity, "bad_image", t0, background_tasks)
         raise HTTPException(400, "อ่านไฟล์รูปไม่ได้ ลองใช้ JPG, PNG หรือ WEBP")
     if len(S["names"]) == 0:
+        log(ip, min_similarity, "empty_db", t0, background_tasks)
         return {"success": False, "message": "ยังไม่มีรูปในคลัง กรุณาติดต่อผู้ดูแลระบบ"}
     im.thumbnail((1280, 1280))
     faces = S["fa"].get(cv2.cvtColor(np.array(im), cv2.COLOR_RGB2BGR))
     if not faces:
+        log(ip, min_similarity, "no_face", t0, background_tasks)
         return {"success": False, "message": "ไม่พบใบหน้าในรูป ลองใช้รูปที่เห็นหน้าตรง สว่าง และชัดเจน"}
 
     me = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))   # ใบหน้าที่ใหญ่สุด
@@ -107,6 +132,7 @@ def search(request: Request, file: UploadFile = File(...), min_similarity: float
     idx = np.where(best >= min(max(min_similarity, 0.2), 0.8))[0]
     idx = idx[np.argsort(-best[idx])]
     results = [{**urls(str(S["names"][i])), "similarity": round(float(best[i]) * 100, 1)} for i in idx[:300]]   # แสดงสูงสุด 300 รูป
+    log(ip, min_similarity, "ok", t0, background_tasks, faces=len(faces), matches=len(idx))
     return {"success": True, "faces_in_upload": len(faces), "total": int(len(idx)), "shown": len(results), "results": results}
 
 
