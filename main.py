@@ -11,7 +11,6 @@ from insightface.app import FaceAnalysis
 from PIL import Image, ImageOps
 
 MODEL = os.getenv("MODEL_NAME", "buffalo_sc")
-CODE = os.getenv("ACCESS_CODE", "")                       # ตั้งค่า = ต้องกรอกรหัสก่อนค้นหา
 ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")    # ใส่โดเมนโรงเรียนเมื่อแยกโฮสต์ UI
 MAX_BYTES, RATE_PER_MIN = 10 * 1024 * 1024, 12
 
@@ -65,9 +64,7 @@ def score(q):   # คำนวณเป็นก้อน ๆ ประหยั
     return out
 
 
-def guard(request: Request, code: str):
-    if CODE and code != CODE:
-        raise HTTPException(401, "รหัสเข้าใช้งานไม่ถูกต้อง")
+def guard(request: Request):
     ip = (request.headers.get("x-forwarded-for") or request.client.host).split(",")[0].strip()
     q, now = hits[ip], time.time()
     while q and now - q[0] > 60:
@@ -79,12 +76,12 @@ def guard(request: Request, code: str):
 
 @app.get("/api/info")
 def info():
-    return {"ready": S["fa"] is not None, "photos": int(len(S["names"])), "needs_code": bool(CODE), "model": MODEL}
+    return {"ready": S["fa"] is not None, "photos": int(len(S["names"])), "model": MODEL}
 
 
 @app.post("/api/search")
-def search(request: Request, file: UploadFile = File(...), min_similarity: float = Form(0.45), code: str = Form("")):
-    guard(request, code)
+def search(request: Request, file: UploadFile = File(...), min_similarity: float = Form(0.45)):
+    guard(request)
     raw = file.file.read(MAX_BYTES + 1)
     if len(raw) > MAX_BYTES:
         raise HTTPException(413, "ไฟล์ใหญ่เกิน 10MB")
