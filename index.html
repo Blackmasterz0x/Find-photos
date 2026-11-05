@@ -1,146 +1,312 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" data-theme="dark" data-pref="auto">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#04050a">
+<meta name="color-scheme" content="dark light">
 <title>STSS STUDIO · ระบบค้นหาใบหน้าจากรูปภาพ</title>
+<script>
+/* ตั้งธีมก่อนวาดหน้า ป้องกันจอกะพริบ */
+(function(){var r=document.documentElement,p="auto";try{p=localStorage.getItem("stss_theme")||"auto"}catch(e){}
+if(["auto","dark","light","pink"].indexOf(p)<0)p="auto";
+var t=p==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):p;r.dataset.theme=t;r.dataset.pref=p})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#04050a;--cy:#00f3ff;--mg:#b84dff;--rd:#ff4d7a;--gn:#3dffa0;--tx:#e8f1ff;--mu:#8a99b3;--pn:rgba(13,17,30,.74);--bd:rgba(0,243,255,.2);
---warn:#ff4d7a;--warn-deep:#9b3dff;--warn-bd:rgba(255,77,122,.4);
---fb1:#1877F2;--fb2:#0b5fd1;--ig1:#F58529;--ig2:#DD2A7B;--ig3:#8134AF}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;color:var(--tx);font:400 16px/1.55 Kanit,system-ui,sans-serif;background:var(--bg);overflow-x:hidden}
-[hidden]{display:none!important}
-svg.ic{width:1.1em;height:1.1em;vertical-align:-.18em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
-.bg::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,243,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,243,255,.05) 1px,transparent 1px);background-size:48px 48px;-webkit-mask-image:radial-gradient(ellipse at 50% 25%,#000 15%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 25%,#000 15%,transparent 75%)}
-.orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.4;animation:drift 18s ease-in-out infinite alternate}
-.o1{width:460px;height:460px;background:#00a8c8;top:-140px;left:-120px}
-.o2{width:500px;height:500px;background:#6a22e8;bottom:-180px;right:-140px;animation-delay:-7s}
-@keyframes drift{to{transform:translate(60px,40px) scale(1.12)}}
+/* ───────── ธีม (ทุกธีมเป็นแนวนีออน) ───────── */
+:root,[data-theme=dark]{color-scheme:dark;
+--bg:#04050a;--ac:#00f3ff;--ac-rgb:0,243,255;--ac2:#b84dff;--ac2-rgb:184,77,255;--tx:#e8f1ff;--mu:#8a99b3;
+--pn:rgba(13,17,30,.74);--pn-solid:#0d111e;--bd:rgba(0,243,255,.2);--fill:rgba(255,255,255,.05);--fill-bd:rgba(255,255,255,.15);
+--card:#0b0e18;--sunk:rgba(0,0,0,.4);--gl:1;--ok:#3dffa0;--ok-rgb:61,255,160;
+--warn:#ff4d7a;--warn-rgb:255,77,122;--warn2:#9b3dff;--note-tx:#ffc2d1;
+--pri:linear-gradient(135deg,#00f3ff,#3b82ff 60%,#b84dff);--pri-ink:#00121a;
+--grid:rgba(0,243,255,.05);--orb1:#00a8c8;--orb2:#6a22e8;--orb-op:.42;
+--ov:rgba(2,4,10,.94);--shadow:0 24px 60px rgba(0,0,0,.55);--pct:#00f3ff;
+--st-a:#fff;--st-b:#7ee8ff;--st-c:#d9a7ff;--st-glow:rgba(255,255,255,.5)}
+[data-theme=light]{color-scheme:light;
+--bg:#f2f6ff;--ac:#007ea8;--ac-rgb:0,150,205;--ac2:#8b2fe0;--ac2-rgb:139,47,224;--tx:#0b1630;--mu:#4f5f7e;
+--pn:rgba(255,255,255,.86);--pn-solid:#fff;--bd:rgba(0,140,195,.38);--fill:rgba(12,28,70,.05);--fill-bd:rgba(12,28,70,.2);
+--card:#fff;--sunk:rgba(12,28,70,.06);--gl:.5;--ok:#008a5b;--ok-rgb:0,138,91;
+--warn:#d41c4b;--warn-rgb:212,28,75;--warn2:#7a2bd9;--note-tx:#8f0f33;
+--pri:linear-gradient(135deg,#0086b3,#2f55f0 58%,#8b2fe0);--pri-ink:#fff;
+--grid:rgba(0,120,190,.09);--orb1:#86e4ff;--orb2:#cdb0ff;--orb-op:.7;
+--ov:rgba(236,241,255,.95);--shadow:0 18px 44px rgba(40,70,140,.2);--pct:#7ff0ff;
+--st-a:#0b1630;--st-b:#00a6d6;--st-c:#8b2fe0;--st-glow:rgba(0,150,205,.3)}
+[data-theme=pink]{color-scheme:dark;
+--bg:#0e0310;--ac:#ff4fb8;--ac-rgb:255,79,184;--ac2:#a855ff;--ac2-rgb:168,85,255;--tx:#ffeaf6;--mu:#cba0bd;
+--pn:rgba(32,9,36,.76);--pn-solid:#1c0820;--bd:rgba(255,79,184,.3);--fill:rgba(255,255,255,.05);--fill-bd:rgba(255,190,230,.2);
+--card:#190a1c;--sunk:rgba(0,0,0,.38);--gl:1;--ok:#5dffc0;--ok-rgb:93,255,192;
+--warn:#ffb14a;--warn-rgb:255,177,74;--warn2:#ff4fb8;--note-tx:#ffe0b3;
+--pri:linear-gradient(135deg,#ff4fb8,#ff72d8 45%,#a855ff);--pri-ink:#1f0018;
+--grid:rgba(255,79,184,.06);--orb1:#ff2d95;--orb2:#7a2cff;--orb-op:.4;
+--ov:rgba(14,2,16,.94);--shadow:0 24px 60px rgba(0,0,0,.6);--pct:#ffb3e6;
+--st-a:#fff;--st-b:#ffc4ec;--st-c:#c9a0ff;--st-glow:rgba(255,160,230,.5)}
 
-header{text-align:center;padding:calc(48px + env(safe-area-inset-top)) 16px 6px}
-.logo{margin:0;font-weight:800;font-size:clamp(2.7rem,11vw,5.2rem);letter-spacing:.05em;line-height:1.05;display:flex;justify-content:center;flex-wrap:wrap;column-gap:.3em}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;min-height:100dvh;color:var(--tx);font:400 16px/1.55 Kanit,system-ui,sans-serif;background:var(--bg);overflow-x:hidden;transition:background-color .35s,color .35s}
+[hidden]{display:none!important}
+svg.ic{width:1.1em;height:1.1em;vertical-align:-.18em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+button{font-family:inherit}
+
+/* พื้นหลัง: ใช้ radial-gradient แทน blur เพื่อให้ลื่นบนมือถือ */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bg::before{content:"";position:absolute;inset:0;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:48px 48px;-webkit-mask-image:radial-gradient(ellipse at 50% 25%,#000 15%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 25%,#000 15%,transparent 75%)}
+.orb{position:absolute;border-radius:50%;opacity:var(--orb-op);animation:drift 18s ease-in-out infinite alternate;will-change:transform}
+.o1{width:640px;height:640px;background:radial-gradient(circle,var(--orb1) 0,transparent 66%);top:-260px;left:-240px}
+.o2{width:700px;height:700px;background:radial-gradient(circle,var(--orb2) 0,transparent 66%);bottom:-300px;right:-260px;animation-delay:-7s}
+@keyframes drift{to{transform:translate3d(60px,40px,0) scale(1.1)}}
+
+header{text-align:center;padding:calc(52px + env(safe-area-inset-top)) 16px 6px}
+.logo{margin:0;font-weight:800;font-size:clamp(2.5rem,11vw,5.2rem);letter-spacing:.05em;line-height:1.05;display:flex;justify-content:center;flex-wrap:wrap;column-gap:.3em}
 .logo i{display:inline-block;font-style:normal;animation:wave 2.6s ease-in-out infinite;animation-delay:calc(var(--i)*.13s)}
 @keyframes wave{0%,100%{transform:translateY(0)}50%{transform:translateY(-.13em)}}
-.stss{color:var(--cy);text-shadow:0 0 6px var(--cy),0 0 24px var(--cy),0 0 54px rgba(0,243,255,.55);animation:flick 6s infinite}
+.stss{color:var(--ac);text-shadow:0 0 6px rgba(var(--ac-rgb),calc(.9*var(--gl))),0 0 24px rgba(var(--ac-rgb),calc(.9*var(--gl))),0 0 54px rgba(var(--ac-rgb),calc(.55*var(--gl)));animation:flick 6s infinite}
 @keyframes flick{0%,90%,100%{opacity:1}91%{opacity:.5}92%{opacity:1}94%{opacity:.65}95%{opacity:1}}
-.studio{filter:drop-shadow(0 0 12px rgba(255,255,255,.5))}
-.studio i{color:#fff;background:linear-gradient(110deg,#fff 35%,#7ee8ff 46%,#d9a7ff 54%,#fff 65%) 0 0/260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:wave 2.6s ease-in-out infinite,shine 3.6s linear infinite;animation-delay:calc(var(--i)*.13s),0s}
+.studio{filter:drop-shadow(0 0 12px var(--st-glow))}
+.studio i{color:var(--st-a);background:linear-gradient(110deg,var(--st-a) 35%,var(--st-b) 46%,var(--st-c) 54%,var(--st-a) 65%) 0 0/260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:wave 2.6s ease-in-out infinite,shine 3.6s linear infinite;animation-delay:calc(var(--i)*.13s),0s}
 @keyframes shine{to{background-position:-260% 0}}
 .sub{margin:10px 0 0;color:var(--mu);font-weight:300;font-size:1rem}
-.chip{display:inline-flex;gap:8px;align-items:center;margin-top:16px;padding:5px 14px;border:1px solid var(--bd);border-radius:99px;background:var(--pn);font-size:.85rem;color:var(--mu)}
-.dot{width:9px;height:9px;border-radius:50%;background:#f5b942;animation:pulse 1.3s infinite}
-.chip.ok .dot{background:var(--gn);box-shadow:0 0 10px var(--gn);animation:none}
-.chip.err .dot{background:var(--rd);animation:none}
+.chip{display:inline-flex;gap:8px;align-items:center;margin-top:16px;padding:5px 14px;border:1px solid var(--bd);border-radius:99px;background:var(--pn);font-size:.85rem;color:var(--mu);max-width:100%}
+.dot{width:9px;height:9px;border-radius:50%;background:#f5b942;animation:pulse 1.3s infinite;flex:none}
+.chip.ok .dot{background:var(--ok);box-shadow:0 0 10px var(--ok);animation:none}
+.chip.err .dot{background:var(--warn);animation:none}
 @keyframes pulse{50%{opacity:.3;transform:scale(.7)}}
 
+/* ตัวเลือกธีม (มุมขวาบน) */
+.tm{position:fixed;top:calc(12px + env(safe-area-inset-top));right:calc(12px + env(safe-area-inset-right));z-index:40}
+.tm-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--pn);border:1px solid var(--bd);color:var(--ac);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer;box-shadow:0 0 16px rgba(var(--ac-rgb),calc(.28*var(--gl)));transition:.2s}
+.tm-btn:hover{box-shadow:0 0 24px rgba(var(--ac-rgb),calc(.5*var(--gl)));transform:rotate(-12deg)}
+.tm-btn svg{width:20px;height:20px}
+.tm-pop{position:absolute;top:50px;right:0;display:none;grid-template-columns:repeat(4,58px);gap:4px;padding:10px;background:var(--pn-solid);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--shadow),0 0 26px rgba(var(--ac-rgb),calc(.2*var(--gl)));animation:pop .18s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(-6px) scale(.97)}}
+.tm.open .tm-pop{display:grid}
+.tm-opt{display:grid;justify-items:center;gap:5px;background:none;border:0;color:var(--mu);font-size:.72rem;cursor:pointer;padding:6px 0;border-radius:10px}
+.tm-opt:hover{background:var(--fill)}
+.sw{width:28px;height:28px;border-radius:50%;border:2px solid transparent;box-shadow:0 0 0 1px var(--fill-bd);transition:.2s}
+.sw.auto{background:linear-gradient(135deg,#0b1020 50%,#f4f7ff 50%)}
+.sw.dark{background:radial-gradient(circle at 35% 30%,#1c2540,#04050a);border-color:#00f3ff}
+.sw.light{background:#fff;border-color:#0090c0}
+.sw.pink{background:radial-gradient(circle at 35% 30%,#3a0d3c,#0e0310);border-color:#ff4fb8}
+.tm-opt[aria-checked=true]{color:var(--tx)}
+.tm-opt[aria-checked=true] .sw{box-shadow:0 0 0 2px var(--ac),0 0 14px rgba(var(--ac-rgb),.65)}
+
 main{width:min(780px,100%);margin:0 auto;padding:22px 16px calc(32px + env(safe-area-inset-bottom))}
-.panel{background:var(--pn);border:1px solid var(--bd);border-radius:24px;padding:22px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 24px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
-.drop{border:2px dashed rgba(0,243,255,.38);border-radius:18px;padding:30px 16px;text-align:center;transition:.25s;cursor:pointer}
-.drop:hover,.drop.over{border-color:var(--cy);background:rgba(0,243,255,.06);box-shadow:0 0 30px rgba(0,243,255,.16)}
-.drop .ic{width:46px;height:46px;stroke-width:1.4;color:var(--cy);filter:drop-shadow(0 0 10px rgba(0,243,255,.5))}
+.panel{background:var(--pn);border:1px solid var(--bd);border-radius:24px;padding:22px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.06)}
+.drop{border:2px dashed rgba(var(--ac-rgb),.42);border-radius:18px;padding:30px 16px;text-align:center;transition:.25s;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--ac);background:rgba(var(--ac-rgb),.07);box-shadow:0 0 30px rgba(var(--ac-rgb),calc(.18*var(--gl)))}
+.drop .ic{width:46px;height:46px;stroke-width:1.4;color:var(--ac);filter:drop-shadow(0 0 10px rgba(var(--ac-rgb),calc(.5*var(--gl))))}
 .drop p{margin:10px 0 0;color:var(--mu);font-size:.92rem}
 .drop b{color:var(--tx);font-weight:500;font-size:1.05rem}
 .pv{display:none;align-items:center;gap:16px;text-align:left}
-.pv img{width:108px;height:108px;object-fit:cover;border-radius:16px;border:2px solid var(--cy);box-shadow:0 0 24px rgba(0,243,255,.35);flex:none}
+.pvw{position:relative;width:108px;height:108px;flex:none;border-radius:16px;overflow:hidden;border:2px solid var(--ac);box-shadow:0 0 24px rgba(var(--ac-rgb),calc(.38*var(--gl)))}
+.pvw img{width:100%;height:100%;object-fit:cover;display:block}
+.pvw.scanning::after{content:"";position:absolute;left:0;right:0;top:-40%;height:40%;background:linear-gradient(to bottom,transparent,rgba(var(--ac-rgb),.7));border-bottom:2px solid var(--ac);box-shadow:0 6px 18px rgba(var(--ac-rgb),.8);animation:scanY 1.4s ease-in-out infinite}
+@keyframes scanY{0%{transform:translateY(0)}100%{transform:translateY(350%)}}
+.pv>div:last-child{min-width:0}
+.pv b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .has .idle{display:none}.has .pv{display:flex}
 .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.btn{flex:1;min-width:140px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font:500 1rem Kanit,sans-serif;color:var(--tx);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:12px 16px;cursor:pointer;transition:.2s}
-.btn:hover:not(:disabled){border-color:var(--cy);box-shadow:0 0 18px rgba(0,243,255,.28);transform:translateY(-1px)}
-.btn.pri{background:linear-gradient(135deg,var(--cy),#3b82ff 60%,var(--mg));color:#00121a;font-weight:700;border:0;box-shadow:0 0 26px rgba(0,243,255,.4);animation:breathe 3s ease-in-out infinite}
-.btn.pri:disabled{animation:none}
-@keyframes breathe{50%{box-shadow:0 0 40px rgba(0,243,255,.6)}}
-.btn:disabled{opacity:.42;cursor:not-allowed}
-.btn:focus-visible,.seg input:focus-visible+span,.x:focus-visible,.card:focus-visible,.social:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.btn{flex:1 1 140px;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:8px;font:500 1rem Kanit,sans-serif;color:var(--tx);background:var(--fill);border:1px solid var(--fill-bd);border-radius:14px;padding:12px 16px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s,filter .2s;text-decoration:none;white-space:nowrap;position:relative}
+.btn:hover:not(:disabled){border-color:var(--ac);box-shadow:0 0 18px rgba(var(--ac-rgb),calc(.3*var(--gl)));transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(0) scale(.98)}
+.btn.pri{background:var(--pri);color:var(--pri-ink);font-weight:700;border:0;box-shadow:0 0 26px rgba(var(--ac-rgb),calc(.42*var(--gl))),0 4px 14px rgba(var(--ac-rgb),.22);isolation:isolate}
+.btn.pri::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 42px rgba(var(--ac-rgb),calc(.75*var(--gl)));opacity:0;animation:breathe 3s ease-in-out infinite;z-index:-1}
+.btn.pri:disabled::after{animation:none}
+@keyframes breathe{50%{opacity:1}}
+.btn.danger{color:var(--warn);background:rgba(var(--warn-rgb),.09);border-color:rgba(var(--warn-rgb),.5)}
+.btn.danger:hover:not(:disabled){border-color:var(--warn);box-shadow:0 0 18px rgba(var(--warn-rgb),.4)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,.seg input:focus-visible+span,.x:focus-visible,.card:focus-visible,.social:focus-visible,.tm-btn:focus-visible,.tm-opt:focus-visible,.tnc-link:focus-visible,.inp:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.spin{width:1.05em;height:1.05em;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:rot .7s linear infinite;flex:none}
+@keyframes rot{to{transform:rotate(360deg)}}
 .lbl{margin:20px 0 8px;color:var(--mu);font-size:.9rem}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:5px;background:rgba(0,0,0,.4);border-radius:14px;border:1px solid rgba(255,255,255,.08)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:5px;background:var(--sunk);border-radius:14px;border:1px solid var(--fill-bd)}
 .seg label{position:relative;cursor:pointer}.seg input{position:absolute;opacity:0;inset:0}
 .seg span{position:relative;display:block;text-align:center;padding:9px 6px;border-radius:10px;font-size:.92rem;color:var(--mu);transition:color .2s,transform .2s;overflow:hidden}
-.seg span::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(0,243,255,.4) 50%,transparent 65%);transform:translateX(-140%);transition:transform .55s ease}
-.seg label:hover span{color:var(--cy);transform:translateY(-1px)}
+.seg span::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(var(--ac-rgb),.3) 50%,transparent 65%);transform:translateX(-140%);transition:transform .55s ease}
+.seg label:hover span{color:var(--ac);transform:translateY(-1px)}
 .seg label:hover span::after{transform:translateX(140%)}
-.seg input:checked+span{background:rgba(0,243,255,.14);color:var(--cy);box-shadow:inset 0 0 0 1px var(--cy),0 0 16px rgba(0,243,255,.25)}
+.seg input:checked+span{background:rgba(var(--ac-rgb),.14);color:var(--ac);font-weight:500;box-shadow:inset 0 0 0 1px var(--ac),0 0 16px rgba(var(--ac-rgb),calc(.28*var(--gl)))}
 .seg input:checked+span::after{display:none}
 .hint{margin:8px 2px 0;color:var(--mu);font-size:.85rem;min-height:1.3em}
-.note{margin-top:16px;padding:13px 16px;border-radius:12px;font-size:.95rem;border:1px solid var(--rd);background:rgba(255,77,122,.1);color:#ffc2d1}
-.note.info{border-color:var(--cy);background:rgba(0,243,255,.08);color:var(--tx)}
-.note button{margin-left:8px;background:none;border:0;color:var(--cy);font:inherit;text-decoration:underline;cursor:pointer}
+.note{margin-top:16px;padding:13px 16px;border-radius:12px;font-size:.95rem;border:1px solid var(--warn);background:rgba(var(--warn-rgb),.1);color:var(--note-tx)}
+.note.info{border-color:var(--ac);background:rgba(var(--ac-rgb),.08);color:var(--tx)}
+.note button{margin-left:8px;background:none;border:0;color:var(--ac);font:inherit;text-decoration:underline;cursor:pointer}
 
+/* ผลลัพธ์ + เอฟเฟกต์ loading */
 #res{margin-top:34px}
 .rh{margin-bottom:14px}
 .rh h2{margin:0 0 4px;font-size:1.35rem;font-weight:500;display:flex;align-items:center;gap:8px}
-.rh h2 svg{color:var(--gn);filter:drop-shadow(0 0 6px rgba(61,255,160,.6))}
+.rh h2 svg{color:var(--ok);filter:drop-shadow(0 0 6px rgba(var(--ok-rgb),.6))}
 .rh p{margin:0;color:var(--mu);font-size:.88rem}
+.rh .tip{margin-top:6px}
+.loader{display:grid;justify-items:center;gap:12px;padding:8px 0 22px;text-align:center}
+.radar{position:relative;width:132px;height:132px;display:grid;place-items:center}
+.radar i{position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--ac);opacity:0;animation:ring 2.4s ease-out infinite}
+.radar i:nth-child(2){animation-delay:.8s}.radar i:nth-child(3){animation-delay:1.6s}
+@keyframes ring{0%{transform:scale(.45);opacity:.9}100%{transform:scale(1.15);opacity:0}}
+.radar .face{position:relative;width:76px;height:92px;color:var(--ac);filter:drop-shadow(0 0 8px rgba(var(--ac-rgb),calc(.8*var(--gl))));overflow:hidden}
+.radar .face svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.radar .face::after{content:"";position:absolute;left:-4px;right:-4px;height:3px;border-radius:3px;background:var(--ac);box-shadow:0 0 14px 3px rgba(var(--ac-rgb),.9);animation:sweep 1.6s ease-in-out infinite alternate}
+@keyframes sweep{from{top:6%}to{top:92%}}
+#ldTxt{margin:0;color:var(--tx);font-weight:500;min-height:1.6em}
+.pbar{width:min(260px,70%);height:4px;border-radius:4px;background:var(--sunk);overflow:hidden}
+.pbar span{display:block;height:100%;width:40%;border-radius:4px;background:var(--pri);box-shadow:0 0 12px rgba(var(--ac-rgb),.7);animation:slide 1.3s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
-.card{position:relative;border-radius:16px;overflow:hidden;background:#0b0e18;border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:.25s;aspect-ratio:4/5;padding:0;display:block}
-.card:hover{transform:translateY(-5px) scale(1.015);border-color:var(--cy);box-shadow:0 0 26px rgba(0,243,255,.3)}
-.card img{width:100%;height:100%;object-fit:cover;display:block}
+.card{position:relative;border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--fill-bd);cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;aspect-ratio:4/5;padding:0;display:block;color:inherit}
+.card:hover{transform:translateY(-4px);border-color:var(--ac);box-shadow:0 0 26px rgba(var(--ac-rgb),calc(.32*var(--gl)))}
+.card img{width:100%;height:100%;object-fit:cover;display:block;animation:fade .35s ease-out}
+@keyframes fade{from{opacity:0}}
 .ph{display:grid;place-items:center;height:100%;color:var(--mu)}
 .ph svg{width:2em;height:2em}
-.pct{position:absolute;left:8px;bottom:8px;padding:2px 10px;border-radius:99px;background:rgba(0,0,0,.72);border:1px solid var(--cy);color:var(--cy);font-size:.82rem;font-weight:500;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-.sk{aspect-ratio:4/5;border-radius:16px;background:linear-gradient(100deg,#0d1220 30%,#18213a 50%,#0d1220 70%) 0 0/300% 100%;animation:sk 1.3s linear infinite}
+.pct{position:absolute;left:8px;bottom:8px;padding:2px 10px;border-radius:99px;background:rgba(0,0,0,.74);border:1px solid var(--pct);color:var(--pct);font-size:.82rem;font-weight:500;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.sk{aspect-ratio:4/5;border-radius:16px;background:linear-gradient(100deg,var(--sunk) 30%,rgba(var(--ac-rgb),.14) 50%,var(--sunk) 70%) 0 0/300% 100%;animation:sk 1.3s linear infinite}
 @keyframes sk{to{background-position:-300% 0}}
 
-.lb{position:fixed;inset:0;z-index:50;background:rgba(2,4,10,.94);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:56px 12px 18px}
+/* ดูรูปเต็ม (ไม่ล้นจอมือถือ) */
+.lb{position:fixed;inset:0;z-index:50;background:var(--ov);display:none;flex-direction:column;align-items:center;gap:12px;padding:calc(58px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));height:100vh;height:100dvh}
 .lb.on{display:flex}
-.lb img{max-width:100%;max-height:calc(100vh - 150px);border-radius:12px;border:2px solid var(--cy);box-shadow:0 0 36px rgba(0,243,255,.35)}
-.lb .bar{display:flex;gap:10px;align-items:center}.lb .bar .btn{flex:none;min-width:0;padding:10px 18px;text-decoration:none}
-.x{position:absolute;top:calc(10px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font-size:1.5rem;cursor:pointer}
-.x:hover{border-color:var(--rd);color:var(--rd)}
+.stage{position:relative;flex:1;min-height:0;width:100%;display:grid;place-items:center;touch-action:pan-y}
+.stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:12px;border:2px solid var(--ac);box-shadow:0 0 36px rgba(var(--ac-rgb),calc(.38*var(--gl)));transition:opacity .2s}
+.stage.busy img{opacity:.75}
+.stage .spin{position:absolute;top:12px;right:12px;color:var(--ac);display:none}
+.stage.busy .spin{display:block}
+.lbar{width:min(560px,100%);display:grid;gap:8px;flex:none}
+.lnav{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:8px}
+.lnav .btn{padding:8px 0;font-size:1.3rem;line-height:1}
+.lnav span{text-align:center;color:var(--mu)}
+.lact{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lact .btn{padding:10px 6px;font-size:.9rem;gap:6px;overflow:hidden;text-overflow:ellipsis}
+.x{position:absolute;top:calc(10px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:1px solid var(--fill-bd);background:var(--fill);color:var(--tx);font-size:1.5rem;cursor:pointer;z-index:2}
+.x:hover{border-color:var(--warn);color:var(--warn)}
 
-.modal{position:fixed;inset:0;z-index:60;background:rgba(3,1,0,.96);display:none;align-items:center;justify-content:center;padding:18px}
+/* โมดัล */
+.modal{position:fixed;inset:0;z-index:60;background:var(--ov);display:none;align-items:center;justify-content:center;padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom))}
 .modal.on{display:flex}
-.modal-box{width:min(620px,100%);max-height:min(84vh,720px);display:flex;flex-direction:column;background:var(--pn);border:1.5px solid var(--warn-bd);border-radius:20px;box-shadow:0 30px 70px rgba(0,0,0,.7),0 0 70px rgba(255,77,122,.2);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);animation:modalIn .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes modalIn{from{opacity:0;transform:scale(.9) translateY(14px)}to{opacity:1;transform:none}}
-.modal-box::before{content:"";display:block;height:4px;border-radius:20px 20px 0 0;background:linear-gradient(90deg,var(--warn),var(--warn-deep),var(--warn))}
-.modal-head{display:flex;align-items:center;gap:12px;padding:20px 22px 14px;border-bottom:1px solid rgba(255,77,122,.18)}
-.modal-head svg{color:var(--warn);width:28px;height:28px;flex:none;filter:drop-shadow(0 0 10px rgba(255,77,122,.7));animation:warnJolt 1.8s ease-in-out infinite}
+#del{z-index:70}
+.modal-box{width:min(620px,100%);max-height:min(92vh,740px);max-height:min(92dvh,740px);display:flex;flex-direction:column;background:var(--pn-solid);border:1.5px solid rgba(var(--warn-rgb),.45);border-radius:20px;box-shadow:var(--shadow),0 0 70px rgba(var(--warn-rgb),.2);animation:modalIn .4s cubic-bezier(.34,1.56,.64,1);overflow:hidden}
+@keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(14px)}to{opacity:1;transform:none}}
+.modal-box::before{content:"";display:block;height:4px;flex:none;background:linear-gradient(90deg,var(--warn),var(--warn2),var(--warn))}
+.modal-head{display:flex;align-items:center;gap:12px;padding:18px 20px 12px;border-bottom:1px solid rgba(var(--warn-rgb),.2);flex:none}
+.modal-head svg{color:var(--warn);width:28px;height:28px;flex:none;filter:drop-shadow(0 0 10px rgba(var(--warn-rgb),.7));animation:warnJolt 1.8s ease-in-out infinite}
 @keyframes warnJolt{0%,100%{transform:rotate(0)}6%{transform:rotate(-8deg)}12%{transform:rotate(7deg)}18%{transform:rotate(0)}}
-.modal-head h2{margin:0;font-size:1.2rem;font-weight:700;display:flex;align-items:center}
-.bang{display:inline-flex;align-items:center;justify-content:center;width:1.3em;height:1.3em;margin-left:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--warn),var(--warn-deep));color:#fff5ee;font-weight:800;font-size:.8em;box-shadow:0 0 14px rgba(255,77,122,.75),0 0 30px rgba(255,77,122,.4);animation:bangPulse 1.5s ease-in-out infinite}
+.modal-head h2{margin:0;font-size:1.15rem;font-weight:700;display:flex;align-items:center;line-height:1.3}
+.bang{display:inline-flex;align-items:center;justify-content:center;width:1.3em;height:1.3em;margin-left:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--warn),var(--warn2));color:#fff;font-weight:800;font-size:.8em;box-shadow:0 0 14px rgba(var(--warn-rgb),.75);animation:bangPulse 1.5s ease-in-out infinite;flex:none}
 @keyframes bangPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
-.modal-body{overflow-y:auto;padding:16px 22px;color:var(--tx);font-size:.92rem;line-height:1.7}
+.modal-body{overflow-y:auto;padding:16px 20px;color:var(--tx);font-size:.92rem;line-height:1.7;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .modal-body::-webkit-scrollbar{width:8px}
-.modal-body::-webkit-scrollbar-thumb{background:rgba(255,77,122,.3);border-radius:4px}
+.modal-body::-webkit-scrollbar-thumb{background:rgba(var(--warn-rgb),.35);border-radius:4px}
 .modal-body h3{color:var(--warn);font-size:1rem;font-weight:600;margin:18px 0 6px}
 .modal-body h3:first-child{margin-top:0}
 .modal-body p{margin:0 0 10px;color:var(--mu)}
 .modal-body b{color:var(--tx);font-weight:500}
 .modal-body a{color:var(--warn)}
-.modal-note{margin-top:14px!important;padding:12px 14px;border:1px solid var(--warn-bd);border-radius:10px;background:rgba(255,77,122,.08);color:var(--tx)!important;font-weight:500}
-.modal-foot{display:flex;gap:10px;padding:16px 22px;border-top:1px solid rgba(255,77,122,.18)}
-.modal-foot .btn{flex:1}
-.btn.warn{background:linear-gradient(135deg,var(--warn),var(--warn-deep) 60%,#6a2bd9);color:#fff5fb;text-shadow:0 1px 3px rgba(0,0,0,.35);font-weight:700;border:0;box-shadow:0 0 26px rgba(255,77,122,.45);animation:warnBreathe 2.2s ease-in-out infinite}
-.btn.warn:hover{filter:brightness(1.08);box-shadow:0 0 46px rgba(255,77,122,.75);transform:translateY(-1px)}
-@keyframes warnBreathe{50%{box-shadow:0 0 42px rgba(255,77,122,.7)}}
+.modal-note{margin-top:14px!important;padding:12px 14px;border:1px solid rgba(var(--warn-rgb),.45);border-radius:10px;background:rgba(var(--warn-rgb),.08);color:var(--tx)!important;font-weight:500}
+.modal-foot{display:flex;gap:10px;padding:14px 20px calc(14px);border-top:1px solid rgba(var(--warn-rgb),.2);flex:none}
+.modal-foot .btn{flex:1 1 0}
+.btn.warn{background:linear-gradient(135deg,var(--warn),var(--warn2) 80%);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3);font-weight:700;border:0;box-shadow:0 0 26px rgba(var(--warn-rgb),.45)}
+.btn.warn:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 0 40px rgba(var(--warn-rgb),.7)}
 .tnc-link{background:none;border:0;color:var(--mu);text-decoration:underline;font:inherit;cursor:pointer;padding:0}
-.tnc-link:hover{color:var(--cy)}
-footer{text-align:center;padding:6px 16px 36px}
+.tnc-link:hover{color:var(--ac)}
+
+/* โมดัลขอลบรูป */
+.dstep{display:flex;flex-direction:column;min-height:0;flex:1}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots b{width:22px;height:5px;border-radius:5px;background:var(--fill-bd);transition:.3s}
+.dots b.on{background:var(--warn);box-shadow:0 0 10px rgba(var(--warn-rgb),.7)}
+.dph{display:flex;gap:12px;align-items:center;padding:10px;border:1px solid var(--fill-bd);border-radius:14px;background:var(--sunk);margin-bottom:14px}
+.dph img{width:56px;height:70px;object-fit:cover;border-radius:10px;flex:none}
+.dph span{color:var(--mu);font-size:.85rem}
+.dlist{margin:0 0 6px;padding:0;list-style:none;display:grid;gap:9px}
+.dlist li{display:flex;gap:10px;color:var(--mu);align-items:flex-start}
+.dlist li::before{content:"";width:7px;height:7px;margin-top:.62em;border-radius:50%;background:var(--warn);box-shadow:0 0 8px var(--warn);flex:none}
+.cam{position:relative;width:min(100%,300px);aspect-ratio:3/4;max-height:44vh;max-height:44dvh;margin:0 auto 12px;border-radius:20px;overflow:hidden;background:#05070d;border:2px solid var(--ac);box-shadow:0 0 28px rgba(var(--ac-rgb),calc(.35*var(--gl)));display:grid;place-items:center;color:#8fb4c8}
+.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.cam .oval{position:absolute;inset:9% 17%;border:2px dashed rgba(255,255,255,.75);border-radius:50%;pointer-events:none;display:none}
+.cam.live .oval{display:block}
+.cam.check::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--ac);box-shadow:0 0 16px 4px rgba(var(--ac-rgb),.9);animation:sweepc 1.1s ease-in-out infinite alternate}
+@keyframes sweepc{from{top:8%}to{top:92%}}
+.cam .ic{width:44px;height:44px;stroke-width:1.4;color:var(--ac)}
+.cam-ph{display:grid;justify-items:center;gap:8px;text-align:center;font-size:.9rem;padding:12px}
+.vstat{padding:10px 14px;border-radius:12px;font-size:.92rem;text-align:center;border:1px solid var(--fill-bd);color:var(--mu);background:var(--sunk)}
+.vstat.ok{border-color:var(--ok);color:var(--ok);background:rgba(var(--ok-rgb),.1)}
+.vstat.err{border-color:var(--warn);color:var(--note-tx);background:rgba(var(--warn-rgb),.1)}
+.fl{display:block;margin:12px 0 5px;color:var(--mu);font-size:.85rem}
+.fl em{color:var(--warn);font-style:normal}
+.inp{width:100%;background:var(--sunk);border:1px solid var(--fill-bd);color:var(--tx);border-radius:12px;padding:11px 13px;font:inherit;font-size:16px;transition:border-color .2s,box-shadow .2s}
+.inp::placeholder{color:var(--mu);opacity:.7}
+.inp:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(var(--ac-rgb),.18)}
+.inp.bad{border-color:var(--warn);box-shadow:0 0 0 3px rgba(var(--warn-rgb),.18)}
+textarea.inp{min-height:92px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cnt{text-align:right;font-size:.75rem;color:var(--mu);margin-top:3px}
+.mini{margin:14px 0 0!important;padding:10px 12px;font-size:.8rem;line-height:1.55;border-radius:10px;border:1px solid rgba(var(--warn-rgb),.4);background:rgba(var(--warn-rgb),.07);color:var(--mu)}
+.mini b{color:var(--warn)}
+.done{text-align:center;padding:8px 0}
+.done .big{width:64px;height:64px;margin:0 auto 10px;border-radius:50%;display:grid;place-items:center;color:var(--ok);border:2px solid var(--ok);box-shadow:0 0 26px rgba(var(--ok-rgb),.5)}
+.done .big svg{width:32px;height:32px}
+.ref{display:inline-block;margin:6px 0 10px;padding:6px 16px;border-radius:99px;border:1px dashed var(--ac);color:var(--ac);font-weight:700;letter-spacing:.06em;font-size:1.1rem}
+
+footer{text-align:center;padding:6px 16px calc(36px + env(safe-area-inset-bottom))}
 .socials{display:flex;justify-content:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
-.social{display:inline-flex;align-items:center;gap:9px;padding:11px 22px;border-radius:99px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);color:var(--tx);font-weight:500;font-size:.95rem;transition:.25s}
+.social{display:inline-flex;align-items:center;gap:9px;padding:11px 22px;border-radius:99px;background:var(--fill);border:1px solid var(--fill-bd);color:var(--tx);font-weight:500;font-size:.95rem;transition:.25s;text-decoration:none}
 .social svg{width:20px;height:20px;flex:none}
-.social.fb{--c1:var(--fb1);--c2:var(--fb2)}
-.social.ig{--c1:var(--ig1);--c2:var(--ig3)}
+.social.fb{--c1:#1877F2;--c2:#0b5fd1}
+.social.ig{--c1:#F58529;--c2:#8134AF}
 .social.fb svg{stroke:none;fill:url(#fbGrad)}
 .social.ig svg{stroke:url(#igGrad);fill:none}
 .social:hover{border-color:transparent;background:linear-gradient(135deg,color-mix(in srgb,var(--c1) 22%,transparent),color-mix(in srgb,var(--c2) 22%,transparent));box-shadow:0 0 24px color-mix(in srgb,var(--c1) 55%,transparent),0 0 44px color-mix(in srgb,var(--c2) 35%,transparent);transform:translateY(-2px)}
 footer p{margin:5px 0;color:var(--mu);font-size:.88rem}
-footer b{color:var(--cy);font-weight:700}
-footer a{color:var(--cy)}
+footer b{color:var(--ac);font-weight:700}
+footer a{color:var(--ac)}
+
+@media(max-width:480px){
+  header{padding-top:calc(56px + env(safe-area-inset-top))}
+  main{padding-left:12px;padding-right:12px}
+  .panel{padding:16px;border-radius:20px}
+  .drop{padding:22px 12px}
+  .pvw{width:88px;height:88px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .btn{padding:12px 12px}
+  .hide-sm{display:none}
+  .lact .btn{font-size:.85rem}
+  .two{grid-template-columns:1fr}
+  .modal{padding-left:8px;padding-right:8px}
+  .modal-head,.modal-body,.modal-foot{padding-left:16px;padding-right:16px}
+}
+@media(max-height:560px) and (orientation:landscape){.lb{padding-top:calc(10px + env(safe-area-inset-top))}.x{top:8px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="fbGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1877F2"/><stop offset="100%" stop-color="#0b5fd1"/></linearGradient>
     <linearGradient id="igGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#F58529"/><stop offset="45%" stop-color="#DD2A7B"/><stop offset="100%" stop-color="#8134AF"/></linearGradient>
+    <symbol id="i-cam" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7l1.6-2.6A1.6 1.6 0 0 1 10.9 3.6h2.2a1.6 1.6 0 0 1 1.3.8L16 7"/><circle cx="12" cy="13.5" r="3.6"/></symbol>
+    <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 18v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/><path d="M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7"/><path d="M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3l9.5 17H2.5L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.2" r=".4" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
+    <symbol id="i-pal" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2 0-1.6-1.2-1.8-1.2-3 0-1 .8-1.7 1.9-1.7H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3z"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="10" cy="7" r="1" fill="currentColor"/><circle cx="15" cy="7" r="1" fill="currentColor"/></symbol>
   </defs>
 </svg>
-<div class="bg"><div class="orb o1"></div><div class="orb o2"></div></div>
+<div class="bg" aria-hidden="true"><div class="orb o1"></div><div class="orb o2"></div></div>
+
+<div class="tm" id="tm">
+  <button class="tm-btn" id="tmBtn" type="button" aria-label="เปลี่ยนธีม" aria-haspopup="true" aria-expanded="false"><svg class="ic" viewBox="0 0 24 24"><use href="#i-pal"/></svg></button>
+  <div class="tm-pop" id="tmPop" role="radiogroup" aria-label="ธีม">
+    <button class="tm-opt" role="radio" data-t="auto" type="button"><span class="sw auto"></span>อัตโนมัติ</button>
+    <button class="tm-opt" role="radio" data-t="dark" type="button"><span class="sw dark"></span>มืด</button>
+    <button class="tm-opt" role="radio" data-t="light" type="button"><span class="sw light"></span>สว่าง</button>
+    <button class="tm-opt" role="radio" data-t="pink" type="button"><span class="sw pink"></span>ชมพู</button>
+  </div>
+</div>
 
 <header>
   <h1 class="logo" aria-label="STSS STUDIO"><span class="stss" data-wave="STSS" aria-hidden="true"></span><span class="studio" data-wave="STUDIO" aria-hidden="true"></span></h1>
@@ -152,16 +318,16 @@ footer a{color:var(--cy)}
   <section class="panel" aria-label="ค้นหารูป">
     <div class="drop" id="drop" tabindex="0" role="button" aria-label="เลือกรูปใบหน้า">
       <div class="idle">
-        <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7l1.6-2.6A1.6 1.6 0 0 1 10.9 3.6h2.2a1.6 1.6 0 0 1 1.3.8L16 7"/><circle cx="12" cy="13.5" r="3.6"/></svg>
+        <svg class="ic" viewBox="0 0 24 24"><use href="#i-cam"/></svg>
         <p><b>วางรูปใบหน้าของคุณที่นี่</b></p><p>ลากไฟล์มาวาง หรือกดเพื่อเลือก · JPG, PNG, WEBP</p>
       </div>
-      <div class="pv"><img id="pv" alt="รูปที่เลือก"><div><b id="pvName">รูปพร้อมค้นหา</b><p style="margin:2px 0 0;color:var(--mu);font-size:.9rem">กด “ค้นหารูปของฉัน” ได้เลย</p></div></div>
+      <div class="pv"><div class="pvw" id="pvw"><img id="pv" alt="รูปที่เลือก"></div><div><b id="pvName">รูปพร้อมค้นหา</b><p style="margin:2px 0 0;color:var(--mu);font-size:.9rem">กด “ค้นหารูปของฉัน” ได้เลย</p></div></div>
     </div>
     <input type="file" id="fileIn" accept="image/jpeg,image/png,image/webp" hidden>
     <input type="file" id="camIn" accept="image/*" capture="user" hidden>
     <div class="row">
       <button class="btn" id="pickBtn" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M21 7.5V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4.5l2 2.5H19a2 2 0 0 1 2 2z"/></svg>เลือกรูป</button>
-      <button class="btn" id="camBtn" type="button"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7l1.6-2.6A1.6 1.6 0 0 1 10.9 3.6h2.2a1.6 1.6 0 0 1 1.3.8L16 7"/><circle cx="12" cy="13.5" r="3.6"/></svg>ถ่ายรูป</button>
+      <button class="btn" id="camBtn" type="button"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cam"/></svg>ถ่ายรูป</button>
     </div>
 
     <div class="lbl" id="lvlLbl">ความเข้มงวดในการค้นหา</div>
@@ -173,14 +339,21 @@ footer a{color:var(--cy)}
     <p class="hint" id="hint"></p>
 
     <div class="row">
-      <button class="btn pri" id="goBtn" type="button" disabled><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>ค้นหารูปของฉัน</button>
-      <button class="btn" id="clrBtn" type="button" style="flex:0 0 auto;min-width:0" disabled>ล้างทั้งหมด</button>
+      <button class="btn pri" id="goBtn" type="button" disabled><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span id="goTxt">ค้นหารูปของฉัน</span></button>
+      <button class="btn" id="clrBtn" type="button" style="flex:0 0 auto" disabled>ล้างทั้งหมด</button>
     </div>
     <div id="note" role="alert" hidden></div>
   </section>
 
   <section id="res" hidden>
-    <div class="rh"><h2 id="resT"></h2><p id="resS"></p></div>
+    <div class="loader" id="loader" hidden>
+      <div class="radar"><i></i><i></i><i></i>
+        <div class="face"><svg viewBox="0 0 76 92"><ellipse cx="38" cy="46" rx="22" ry="29"/><path d="M28 40h.01M48 40h.01"/><path d="M29 60q9 7 18 0"/><path d="M6 20V8a2 2 0 0 1 2-2h12M56 6h12a2 2 0 0 1 2 2v12M70 72v12a2 2 0 0 1-2 2H56M20 86H8a2 2 0 0 1-2-2V72"/></svg></div>
+      </div>
+      <p id="ldTxt"></p>
+      <div class="pbar"><span></span></div>
+    </div>
+    <div class="rh" id="rh"><h2 id="resT"></h2><p id="resS"></p><p class="tip" id="resTip"></p></div>
     <div class="grid" id="grid"></div>
   </section>
 </main>
@@ -199,10 +372,11 @@ footer a{color:var(--cy)}
   <p>พบปัญหาการใช้งาน แจ้งได้ที่ <a href="mailto:stss_studio@stss.ac.th">stss_studio@stss.ac.th</a></p>
 </footer>
 
+<!-- ข้อกำหนดและเงื่อนไข -->
 <div class="modal" id="tnc" role="dialog" aria-modal="true" aria-labelledby="tncTitle">
   <div class="modal-box">
     <div class="modal-head">
-      <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17H2.5L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.2" r=".4" fill="currentColor" stroke="none"/></svg>
+      <svg class="ic" viewBox="0 0 24 24"><use href="#i-warn"/></svg>
       <h2 id="tncTitle">ข้อกำหนดและเงื่อนไขการใช้งาน<span class="bang" aria-hidden="true">!</span></h2>
     </div>
     <div class="modal-body">
@@ -211,19 +385,22 @@ footer a{color:var(--cy)}
       <h3>1. นโยบายการคุ้มครองข้อมูลส่วนบุคคล (PDPA)</h3>
       <p>ระบบของเราให้ความสำคัญสูงสุดกับความปลอดภัยและความเป็นส่วนตัวของผู้ใช้งาน และดำเนินการภายใต้พระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) อย่างเคร่งครัด</p>
       <p><b>วัตถุประสงค์ในการประมวลผล</b> — รูปภาพใบหน้า (ข้อมูลชีวมิติ) ที่ท่านอัปโหลด จะถูกนำไปใช้เพื่อสกัดจุดเด่นของใบหน้าและเปรียบเทียบเพื่อค้นหาความตรงกันของภาพในระบบเท่านั้น</p>
-      <p><b>การไม่เก็บบันทึกข้อมูล</b> — รูปภาพต้นฉบับและข้อมูลโครงสร้างใบหน้าที่อัปโหลด จะถูกประมวลผลแบบเรียลไทม์ และลบออกจากหน่วยความจำชั่วคราวทันทีที่การค้นหาเสร็จสิ้น ทาง STSS STUDIO ยืนยันว่าจะไม่มีการบันทึก จัดเก็บ คัดลอก หรือทำสำเนาข้อมูลของท่านลงในเครื่องแม่ข่ายหรือฐานข้อมูลใดๆ ทั้งสิ้น</p>
+      <p><b>การไม่เก็บบันทึกข้อมูล</b> — รูปภาพต้นฉบับและข้อมูลโครงสร้างใบหน้าที่อัปโหลด จะถูกประมวลผลแบบเรียลไทม์ และลบออกจากหน่วยความจำชั่วคราวทันทีที่การค้นหาเสร็จสิ้น ทาง STSS STUDIO ยืนยันว่าจะไม่มีการบันทึก จัดเก็บ คัดลอก หรือทำสำเนารูปภาพและข้อมูลใบหน้าของท่านลงในเครื่องแม่ข่ายหรือฐานข้อมูลใดๆ ทั้งสิ้น ระบบเก็บเฉพาะสถิติการใช้งานที่ไม่มีรูปภาพ (เช่น เวลา ผลการค้นหา จำนวนรูปที่พบ และหมายเลข IP) เพื่อความปลอดภัยและการแก้ไขปัญหาของระบบ</p>
       <p><b>การให้ความยินยอม</b> — การที่ท่านกดปุ่มยอมรับเงื่อนไขและทำการอัปโหลดรูปภาพ ถือว่าท่านได้ให้ความยินยอมโดยชัดแจ้งในการประมวลผลข้อมูลส่วนบุคคลสำหรับวัตถุประสงค์การค้นหาในครั้งนั้นๆ</p>
 
       <h3>2. ข้อจำกัดของเทคโนโลยีปัญญาประดิษฐ์</h3>
       <p>ผลลัพธ์ของการค้นหาถูกประมวลผลโดยอัลกอริทึมวิเคราะห์ใบหน้า ซึ่งความแม่นยำและประสิทธิภาพในการตรวจจับอาจแปรผันตามปัจจัยทางกายภาพหลายประการ เช่น คุณภาพและความละเอียดของรูปภาพที่อัปโหลด สภาพแสง ความคมชัด มุมกล้อง ตลอดจนการสวมใส่สิ่งกีดขวางใบหน้า (เช่น แว่นตา หรือหน้ากากอนามัย) ทางทีมผู้พัฒนาไม่สามารถรับรองผลลัพธ์การค้นหาที่ถูกต้องสมบูรณ์ได้ในทุกกรณี</p>
 
-      <h3>3. ระยะเวลาการตอบสนองและสถานะพักการทำงานของระบบ</h3>
-      <p>เพื่อการบริหารจัดการทรัพยากรระบบอย่างมีประสิทธิภาพ หากไม่มีผู้เข้าใช้งานเว็บไซต์เป็นระยะเวลาหนึ่ง ระบบเซิร์ฟเวอร์และปัญญาประดิษฐ์จะเข้าสู่โหมดพักการทำงานชั่วคราว ดังนั้นหากท่านเข้าใช้งานในขณะที่ระบบกำลังอยู่ในโหมดพัก การอัปโหลดและประมวลผลในครั้งแรกอาจใช้เวลาปลุกระบบนานกว่าปกติ (ประมาณ 1–2 นาที) ทั้งนี้หลังจากระบบกลับมาตื่นตัวเต็มที่แล้ว การค้นหาในครั้งต่อๆ ไปจะประมวลผลและแสดงผลได้อย่างรวดเร็วตามปกติ</p>
+      <h3>3. ความพร้อมใช้งานของระบบ</h3>
+      <p>ระบบพร้อมให้บริการอย่างต่อเนื่อง อย่างไรก็ตาม ในช่วงที่มีการปรับปรุงหรือรีสตาร์ทระบบ การค้นหาในครั้งนั้นอาจใช้เวลานานกว่าปกติเล็กน้อย ทางทีมผู้พัฒนาขออภัยในความไม่สะดวกมา ณ ที่นี้</p>
 
-      <h3>4. ขอบเขตการใช้งานที่เหมาะสม</h3>
+      <h3>4. การขอลบรูปภาพ</h3>
+      <p>ผู้ที่ปรากฏอยู่ในรูปภาพสามารถยื่นคำขอให้ลบรูปนั้นออกจากระบบได้ โดยต้องผ่านการสแกนใบหน้าเพื่อยืนยันว่าตนเองปรากฏอยู่ในรูป และกรอกข้อมูลยืนยันตัวตน (ชื่อ ชั้น รหัสประจำตัว และเหตุผล) ตามความเป็นจริงและครบถ้วน ข้อมูลดังกล่าวจะถูกส่งให้ผู้ดูแลระบบเพื่อพิจารณาเท่านั้น ภาพที่ใช้สแกนยืนยันใบหน้าจะไม่ถูกบันทึกไว้ การพิจารณาใช้เวลาประมาณ 1–2 วัน และผู้ดูแลระบบขอสงวนสิทธิ์ในการปฏิเสธคำขอที่ข้อมูลไม่ครบถ้วนหรือไม่เป็นความจริง</p>
+
+      <h3>5. ขอบเขตการใช้งานที่เหมาะสม</h3>
       <p>ผู้ใช้งานตกลงที่จะใช้บริการระบบค้นหารูปภาพนี้อย่างสุจริต โดยห้ามมิให้นำระบบไปใช้ในทางที่ผิดกฎหมาย ละเมิดสิทธิส่วนบุคคล คุกคาม หรือก่อให้เกิดความเสื่อมเสียต่อบุคคลที่สาม ทางทีมผู้พัฒนาขอสงวนสิทธิ์ในการปฏิเสธการให้บริการหรือระงับการเข้าถึงระบบ หากตรวจพบการใช้งานที่ละเมิดข้อตกลงดังกล่าว</p>
 
-      <h3>5. ช่องทางการติดต่อและการแจ้งปัญหา</h3>
+      <h3>6. ช่องทางการติดต่อและการแจ้งปัญหา</h3>
       <p>หากท่านพบความผิดปกติของระบบ มีข้อสงสัยเกี่ยวกับนโยบายความเป็นส่วนตัว (PDPA) หรือต้องการรายงานปัญหาการใช้งาน สามารถติดต่อทีมผู้พัฒนาได้โดยตรงผ่านช่องทางอีเมล <a href="mailto:stss_studio@stss.ac.th">stss_studio@stss.ac.th</a></p>
 
       <p class="modal-note">การที่ท่านดำเนินการคลิกปุ่ม “ข้าพเจ้าเข้าใจและยอมรับเงื่อนไข” หรือเริ่มต้นใช้งานด้วยการอัปโหลดรูปภาพ ถือว่าท่านได้อ่าน ทำความเข้าใจ และยินยอมปฏิบัติตามเงื่อนไขการให้บริการและนโยบายการคุ้มครองข้อมูลส่วนบุคคลที่ระบุไว้ข้างต้นนี้ครบถ้วนทุกประการ</p>
@@ -235,13 +412,101 @@ footer a{color:var(--cy)}
   </div>
 </div>
 
+<!-- ขอลบรูป -->
+<div class="modal" id="del" role="dialog" aria-modal="true" aria-labelledby="delTitle">
+  <div class="modal-box">
+    <div class="modal-head">
+      <svg class="ic" viewBox="0 0 24 24"><use href="#i-warn"/></svg>
+      <h2 id="delTitle">ขอลบรูปภาพ</h2>
+      <div class="dots" id="dDots" aria-hidden="true"><b></b><b></b><b></b></div>
+    </div>
+
+    <!-- ขั้น 1: คำเตือน -->
+    <div class="dstep" id="ds1">
+      <div class="modal-body">
+        <div class="dph"><img id="dPh" alt=""><span>รูปที่ต้องการขอลบ</span></div>
+        <h3>โปรดอ่านก่อนดำเนินการ</h3>
+        <ul class="dlist">
+          <li><span>คำขอนี้สำหรับ <b>ผู้ที่ปรากฏอยู่ในรูปนี้เท่านั้น</b> ระบบจะให้สแกนใบหน้าสดเพื่อเทียบกับคนในรูปก่อนจึงจะกรอกข้อมูลได้</span></li>
+          <li><span>ต้องกรอกชื่อ ชั้น รหัสประจำตัว และเหตุผล <b>ตามความเป็นจริงและครบถ้วน</b> การแอบอ้างหรือให้ข้อมูลเท็จจะถูกปฏิเสธ และอาจมีความรับผิดตามระเบียบของโรงเรียน</span></li>
+          <li>การส่งคำขอ <b>ไม่ได้ทำให้รูปถูกลบทันที</b> แอดมินจะตรวจสอบและพิจารณา ใช้เวลาประมาณ <b>1–2 วัน</b></li>
+          <li>ภาพที่ใช้สแกนยืนยันใบหน้า <b>ไม่ถูกบันทึก</b> ระบบเก็บเฉพาะข้อมูลที่กรอกในแบบฟอร์มเพื่อให้แอดมินพิจารณา</li>
+        </ul>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" type="button" data-dclose>ยกเลิก</button>
+        <button class="btn warn" id="d1Next" type="button">ฉันเข้าใจ ดำเนินการต่อ</button>
+      </div>
+    </div>
+
+    <!-- ขั้น 2: สแกนใบหน้า -->
+    <div class="dstep" id="ds2" hidden>
+      <div class="modal-body">
+        <p style="margin-bottom:12px">สแกนใบหน้าของคุณ เพื่อยืนยันว่าคุณคือคนที่อยู่ในรูปนี้</p>
+        <div class="cam" id="cam">
+          <video id="vid" playsinline muted></video><div class="oval"></div>
+          <div class="cam-ph" id="camPh"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cam"/></svg><span>กด “เปิดกล้อง” แล้วมองกล้องตรง ๆ<br>ในที่ที่มีแสงสว่าง</span></div>
+        </div>
+        <div class="vstat" id="vstat">ยังไม่ได้สแกน</div>
+        <input type="file" id="camIn2" accept="image/*" capture="user" hidden>
+        <p style="text-align:center;margin:12px 0 0;font-size:.82rem"><button class="tnc-link" id="camAlt" type="button">เปิดกล้องในหน้านี้ไม่ได้? ถ่ายจากแอปกล้องแทน</button></p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" type="button" id="d2Back">ย้อนกลับ</button>
+        <button class="btn pri" id="d2Main" type="button">เปิดกล้อง</button>
+      </div>
+    </div>
+
+    <!-- ขั้น 3: แบบฟอร์ม -->
+    <div class="dstep" id="ds3" hidden>
+      <div class="modal-body">
+        <div class="dph"><img id="dPh2" alt=""><span>ยืนยันใบหน้าแล้ว ✓<br>กรอกข้อมูลเพื่อให้แอดมินตรวจสอบ</span></div>
+        <label class="fl" for="fName">ชื่อ-นามสกุล <em>*</em></label>
+        <input class="inp" id="fName" maxlength="100" autocomplete="name" placeholder="ชื่อและนามสกุลจริง">
+        <div class="two">
+          <div><label class="fl" for="fGrade">ชั้น <em>*</em></label><input class="inp" id="fGrade" maxlength="30" placeholder="เช่น ม.5/3" autocomplete="off"></div>
+          <div><label class="fl" for="fSid">รหัสประจำตัว <em>*</em></label><input class="inp" id="fSid" maxlength="20" inputmode="text" placeholder="เช่น 12345" autocomplete="off"></div>
+        </div>
+        <label class="fl" for="fWhy">เหตุผลที่ขอลบรูป <em>*</em></label>
+        <textarea class="inp" id="fWhy" maxlength="600" placeholder="อธิบายเหตุผลโดยย่อ อย่างน้อย 10 ตัวอักษร"></textarea>
+        <div class="cnt"><span id="fCnt">0</span>/600</div>
+        <p class="mini"><b>โปรดทราบ:</b> ต้องกรอกข้อมูลตามความเป็นจริงและครบถ้วน ข้อมูลไม่ครบหรือไม่ตรงกับความจริงอาจถูกปฏิเสธ · แอดมินจะพิจารณาภายใน <b>1–2 วัน</b></p>
+        <div id="dErr" class="note" role="alert" hidden style="margin-top:12px"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" type="button" data-dclose>ยกเลิก</button>
+        <button class="btn warn" id="d3Send" type="button">ส่งคำขอลบรูป</button>
+      </div>
+    </div>
+
+    <!-- ขั้น 4: สำเร็จ -->
+    <div class="dstep" id="ds4" hidden>
+      <div class="modal-body">
+        <div class="done">
+          <div class="big"><svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg></div>
+          <h3 style="margin:0;color:var(--ok)">ส่งคำขอเรียบร้อยแล้ว</h3>
+          <div class="ref" id="dRef"></div>
+          <p>แอดมินจะตรวจสอบและพิจารณาภายใน <b>1–2 วัน</b><br>โปรดเก็บรหัสอ้างอิงนี้ไว้ หากต้องการติดตามผลให้ส่งอีเมลถึง <a href="mailto:stss_studio@stss.ac.th">stss_studio@stss.ac.th</a> พร้อมแจ้งรหัสนี้</p>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn pri" type="button" data-dclose>เสร็จสิ้น</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ดูรูปเต็ม -->
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="ดูรูปขนาดเต็ม">
   <button class="x" id="lbX" aria-label="ปิด">×</button>
-  <img id="lbImg" alt="">
-  <div class="bar">
-    <button class="btn" id="prev" aria-label="รูปก่อนหน้า">‹</button><span id="lbN" style="color:var(--mu);min-width:56px;text-align:center"></span><button class="btn" id="next" aria-label="รูปถัดไป">›</button>
-    <a class="btn" id="lbDl" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 18v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>ดาวน์โหลด</a>
-    <a class="btn" id="lbOpen" target="_blank" rel="noopener">เปิดใน Drive</a>
+  <div class="stage busy" id="stage"><img id="lbImg" alt=""><span class="spin"></span></div>
+  <div class="lbar">
+    <div class="lnav">
+      <button class="btn" id="prev" type="button" aria-label="รูปก่อนหน้า">‹</button><span id="lbN"></span><button class="btn" id="next" type="button" aria-label="รูปถัดไป">›</button>
+    </div>
+    <div class="lact">
+      <a class="btn" id="lbDl" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24"><use href="#i-dl"/></svg>ดาวน์โหลด</a>
+      <a class="btn" id="lbOpen" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24"><use href="#i-ext"/></svg><span><span class="hide-sm">เปิดใน </span>Drive</span></a>
+      <button class="btn danger" id="lbDel" type="button"><svg class="ic" viewBox="0 0 24 24"><use href="#i-trash"/></svg>ขอลบรูป</button>
+    </div>
   </div>
 </div>
 
@@ -249,33 +514,68 @@ footer a{color:var(--cy)}
 const API = "";   // ใช้โฮสต์เดียวกัน = ว่างไว้ | ถ้าแยกโฮสต์ UI ใส่ URL ของ API เช่น "https://xxx.onrender.com"
 const $ = s => document.querySelector(s);
 const U = u => u.startsWith("/") ? API + u : u;
-let file = null, results = [], cur = 0, busy = false;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let file = null, results = [], cur = 0, busy = false, photoCount = 0, pvUrl = "";
 const PH_SVG = '<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5"></rect><path d="M3 16l5-5 3 3 5-6 5 5"></path></svg>';
 
 document.querySelectorAll("[data-wave]").forEach(el => {
   el.innerHTML = [...el.dataset.wave].map((c, i) => `<i style="--i:${i}">${c}</i>`).join("");
 });
+const lock = () => { document.body.style.overflow = document.querySelector(".lb.on,.modal.on") ? "hidden" : ""; };
+
+/* ---------- ธีม ---------- */
+const root = document.documentElement, mq = matchMedia("(prefers-color-scheme: light)");
+function applyTheme(pref, save) {
+  const t = pref === "auto" ? (mq.matches ? "light" : "dark") : pref;
+  root.dataset.theme = t; root.dataset.pref = pref;
+  if (save) { try { localStorage.setItem("stss_theme", pref); } catch {} }
+  document.querySelectorAll(".tm-opt").forEach(b => b.setAttribute("aria-checked", b.dataset.t === pref));
+  const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = getComputedStyle(root).getPropertyValue("--bg").trim() || "#04050a";
+}
+applyTheme(root.dataset.pref || "auto");
+(mq.addEventListener ? mq.addEventListener.bind(mq, "change") : mq.addListener.bind(mq))(() => { if (root.dataset.pref === "auto") applyTheme("auto"); });
+const tmSet = open => { $("#tm").classList.toggle("open", open); $("#tmBtn").setAttribute("aria-expanded", open); };
+$("#tmBtn").onclick = e => { e.stopPropagation(); tmSet(!$("#tm").classList.contains("open")); };
+document.querySelectorAll(".tm-opt").forEach(b => b.onclick = () => { applyTheme(b.dataset.t, true); tmSet(false); });
+document.addEventListener("click", e => { if (!e.target.closest("#tm")) tmSet(false); });
 
 /* ---------- ข้อกำหนดและเงื่อนไขการใช้งาน ---------- */
-const CKEY = "stss_tnc_accept_v1";
+const CKEY = "stss_tnc_accept_v2";   // เปลี่ยนเวอร์ชัน = ให้ผู้ใช้เดิมอ่านและยอมรับข้อกำหนดที่แก้ไขใหม่อีกครั้ง
 const consented = () => { try { return localStorage.getItem(CKEY) === "1"; } catch { return false; } };
-const openTnc = () => { $("#tnc").classList.add("on"); document.body.style.overflow = "hidden"; };
-const closeTnc = () => { $("#tnc").classList.remove("on"); document.body.style.overflow = ""; };
+const openTnc = () => { $("#tnc").classList.add("on"); lock(); };
+const closeTnc = () => { $("#tnc").classList.remove("on"); lock(); };
 $("#tncOpen").onclick = openTnc;
 $("#tncClose").onclick = closeTnc;
 $("#tncAccept").onclick = () => { try { localStorage.setItem(CKEY, "1"); } catch {} closeTnc(); };
 $("#tnc").onclick = e => { if (e.target.id === "tnc") closeTnc(); };
-addEventListener("keydown", e => { if ($("#tnc").classList.contains("on") && e.key === "Escape") closeTnc(); });
 if (!consented()) openTnc();   // แสดงอัตโนมัติจนกว่าจะกดยอมรับ
+
+/* ---------- เรียก API (timeout + ลองใหม่อัตโนมัติเมื่อเซิร์ฟเวอร์กำลังเริ่ม/หลุดชั่วคราว) ---------- */
+async function req(url, opt = {}, { retries = 0, timeout = 60000 } = {}) {
+  let last;
+  for (let a = 0; a <= retries; a++) {
+    const ac = new AbortController(), to = setTimeout(() => ac.abort(), timeout);
+    try {
+      const r = await fetch(API + url, { ...opt, signal: ac.signal });
+      if ([502, 503, 504].includes(r.status) && a < retries) { await sleep(2000 * (a + 1)); continue; }
+      return { ok: r.ok, status: r.status, d: await r.json().catch(() => ({})) };
+    } catch (e) { last = e; if (a < retries) await sleep(2000 * (a + 1)); }
+    finally { clearTimeout(to); }
+  }
+  throw last || new Error("network");
+}
+const errMsg = r => typeof r.d.detail === "string" ? r.d.detail : r.status === 422 ? "ข้อมูลไม่ครบถ้วนหรือไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง" : `เซิร์ฟเวอร์ขัดข้อง (${r.status}) ลองใหม่อีกครั้ง`;
+const netMsg = e => e && e.name === "AbortError" ? "ใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง" : "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้งในอีกสักครู่";
 
 /* ---------- สถานะระบบ ---------- */
 function chip(kind, txt) { $("#chip").className = "chip " + kind; $("#chipTxt").textContent = txt; }
 async function ping(n = 0) {
   try {
     const d = await (await fetch(API + "/api/info", { cache: "no-store" })).json();
-    chip(d.photos ? "ok" : "err", d.photos ? `ระบบพร้อมใช้งาน · ${d.photos.toLocaleString()} รูปในคลัง` : "ยังไม่มีรูปในคลัง");
+    photoCount = d.photos || 0;
     if (!d.ready) throw 0;
-  } catch { chip("", n ? "กำลังปลุกระบบ… ครั้งแรกอาจรอประมาณ 1 นาที" : "กำลังเชื่อมต่อระบบ…"); if (n < 40) setTimeout(() => ping(n + 1), 4000); else chip("err", "เชื่อมต่อไม่ได้ ลองรีเฟรชหน้านี้"); }
+    chip(d.photos ? "ok" : "err", d.photos ? `ระบบพร้อมใช้งาน · ${d.photos.toLocaleString()} รูปในคลัง` : "ยังไม่มีรูปในคลัง");
+  } catch { chip("", n ? "ระบบกำลังเริ่มทำงาน รอสักครู่…" : "กำลังเชื่อมต่อระบบ…"); if (n < 60) setTimeout(() => ping(n + 1), 3000); else chip("err", "เชื่อมต่อไม่ได้ ลองรีเฟรชหน้านี้"); }
 }
 ping();
 
@@ -288,20 +588,23 @@ function say(msg, info, action) {
   n.className = "note" + (info ? " info" : ""); n.textContent = msg;
   if (action) { const b = document.createElement("button"); b.textContent = action[0]; b.onclick = action[1]; n.append(b); }
 }
-async function shrink(f) {
+async function shrink(f, max = 1280) {
   try {
     const bm = await createImageBitmap(f, { imageOrientation: "from-image" });
-    const k = Math.min(1, 1280 / Math.max(bm.width, bm.height));
+    const k = Math.min(1, max / Math.max(bm.width, bm.height));
     const c = Object.assign(document.createElement("canvas"), { width: Math.round(bm.width * k), height: Math.round(bm.height * k) });
     c.getContext("2d").drawImage(bm, 0, 0, c.width, c.height);
+    if (bm.close) bm.close();
     return await new Promise(r => c.toBlob(b => r(b || f), "image/jpeg", .9));
   } catch { return f; }
 }
 async function setFile(f) {
   if (!f) return;
-  if (!/^image\/(jpeg|png|webp)$/.test(f.type)) return say("รองรับเฉพาะไฟล์ JPG, PNG หรือ WEBP");
+  if (!/^image\/(jpeg|png|webp)$/.test(f.type) && !/^image\//.test(f.type)) return say("รองรับเฉพาะไฟล์ JPG, PNG หรือ WEBP");
+  if (!/^image\/(jpeg|png|webp|heic|heif)$/.test(f.type)) return say("รองรับเฉพาะไฟล์ JPG, PNG หรือ WEBP");
   file = await shrink(f);
-  $("#pv").src = URL.createObjectURL(file); $("#pvName").textContent = f.name || "รูปจากกล้อง";
+  if (pvUrl) URL.revokeObjectURL(pvUrl);
+  pvUrl = URL.createObjectURL(file); $("#pv").src = pvUrl; $("#pvName").textContent = f.name || "รูปจากกล้อง";
   $("#drop").classList.add("has"); $("#goBtn").disabled = $("#clrBtn").disabled = false;
   say(""); $("#res").hidden = true;
 }
@@ -313,28 +616,43 @@ $("#drop").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preven
 ["dragenter", "dragover"].forEach(t => $("#drop").addEventListener(t, e => { e.preventDefault(); $("#drop").classList.add("over"); }));
 ["dragleave", "drop"].forEach(t => $("#drop").addEventListener(t, e => { e.preventDefault(); $("#drop").classList.remove("over"); }));
 $("#drop").addEventListener("drop", e => setFile(e.dataTransfer.files[0]));
-addEventListener("paste", e => { const f = [...(e.clipboardData?.files || [])][0]; if (f) setFile(f); });
+addEventListener("paste", e => { if (document.querySelector(".modal.on")) return; const f = [...(e.clipboardData?.files || [])][0]; if (f) setFile(f); });
 $("#clrBtn").onclick = () => { file = null; $("#drop").classList.remove("has"); $("#goBtn").disabled = $("#clrBtn").disabled = true; $("#res").hidden = true; say(""); };
 
-/* ---------- ค้นหา ---------- */
-function skeleton() { $("#res").hidden = false; $("#resT").textContent = "กำลังสแกนใบหน้า…"; $("#resS").textContent = ""; $("#grid").innerHTML = '<div class="sk"></div>'.repeat(6); }
+/* ---------- ค้นหา + เอฟเฟกต์ loading ---------- */
+let ldTimer;
+function startLoader() {
+  const L = ["กำลังตรวจจับใบหน้า…", "กำลังสกัดจุดเด่นของใบหน้า…", photoCount ? `กำลังเทียบกับ ${photoCount.toLocaleString()} รูปในคลัง…` : "กำลังเทียบกับรูปในคลัง…", "กำลังจัดอันดับความเหมือน…"];
+  let i = 0; $("#ldTxt").textContent = L[0];
+  clearInterval(ldTimer); ldTimer = setInterval(() => { i = Math.min(i + 1, L.length - 1); $("#ldTxt").textContent = L[i]; }, 1800);
+  $("#res").hidden = false; $("#loader").hidden = false; $("#rh").hidden = true;
+  $("#grid").innerHTML = '<div class="sk"></div>'.repeat(6);
+  $("#pvw").classList.add("scanning"); $("#goTxt").textContent = "กำลังค้นหา…";
+  $("#goBtn").querySelector("svg").replaceWith(Object.assign(document.createElement("span"), { className: "spin", id: "goSpin" }));
+  $("#res").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function stopLoader() {
+  clearInterval(ldTimer); $("#loader").hidden = true; $("#rh").hidden = false; $("#pvw").classList.remove("scanning");
+  $("#goTxt").textContent = "ค้นหารูปของฉัน";
+  const s = $("#goSpin"); if (s) s.replaceWith(Object.assign(document.createElementNS("http://www.w3.org/2000/svg", "svg"), { innerHTML: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>' })), $("#goBtn").querySelector("svg").setAttribute("viewBox", "0 0 24 24"), $("#goBtn").querySelector("svg").setAttribute("class", "ic");
+}
 async function search() {
   if (!file || busy) return;
   if (!consented()) return openTnc();
-  busy = true; $("#goBtn").disabled = true; say(""); skeleton();
-  const slow = setTimeout(() => say("ระบบกำลังตื่นจากโหมดพัก รออีกสักครู่นะ…", true), 6000);
+  busy = true; $("#goBtn").disabled = true; say(""); startLoader();
+  const slow = setTimeout(() => say("ระบบกำลังเริ่มทำงาน รออีกสักครู่นะ…", true), 7000);
+  let ok = false;
   try {
     const fd = new FormData();
     fd.append("file", file, "query.jpg");
     fd.append("min_similarity", document.querySelector("input[name=lv]:checked").value);
-    const r = await fetch(API + "/api/search", { method: "POST", body: fd });
-    const d = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(d.detail || `เซิร์ฟเวอร์ขัดข้อง (${r.status})`);
-    if (!d.success) { $("#res").hidden = true; return say(d.message); }
-    results = d.results; render(d);
+    const r = await req("/api/search", { method: "POST", body: fd }, { retries: 4, timeout: 90000 });
+    if (!r.ok) throw new Error(errMsg(r));
+    if (!r.d.success) { $("#res").hidden = true; return say(r.d.message); }
+    results = r.d.results; ok = true; stopLoader(); render(r.d);
   } catch (e) {
-    $("#res").hidden = true; say(e.message === "Failed to fetch" ? "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้งในอีกสักครู่" : e.message);
-  } finally { clearTimeout(slow); if ($("#note").classList.contains("info")) say(""); busy = false; $("#goBtn").disabled = false; }
+    $("#res").hidden = true; say(e.message && !/fetch|abort|network/i.test(e.message) ? e.message : netMsg(e));
+  } finally { clearTimeout(slow); if (!ok) stopLoader(); if ($("#note").classList.contains("info")) say(""); busy = false; $("#goBtn").disabled = false; }
 }
 function render(d) {
   $("#res").hidden = false;
@@ -342,17 +660,20 @@ function render(d) {
   if (d.total > d.shown) extra.push(`แสดง ${d.shown} รูปที่เหมือนที่สุดจากทั้งหมด ${d.total} รูป`);
   if (d.faces_in_upload > 1) extra.push("พบหลายใบหน้าในรูปที่อัปโหลด ระบบเลือกใช้ใบหน้าที่ใหญ่ที่สุด");
   $("#resS").textContent = extra.join(" ");
+  $("#resTip").textContent = "";
   if (!results.length) {
     $("#resT").innerHTML = `<svg class="ic" viewBox="0 0 24 24" style="color:var(--mu)"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M8.5 15.5a5 5 0 0 1 7 0"/></svg>ไม่พบรูปที่ตรงกัน`;
     $("#grid").innerHTML = ""; $("#resS").textContent = "";
     const wider = document.querySelector("input[name=lv]:checked").value !== "0.35";
     return say("ลองปรับความเข้มงวดให้กว้างขึ้น หรือใช้รูปหน้าตรงที่สว่างกว่านี้", true, wider ? ["ค้นหาแบบกว้าง", () => { document.querySelector("input[name=lv][value='0.35']").checked = true; hint(); search(); }] : null);
   }
-  $("#resT").innerHTML = `<svg class="ic" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>พบรูปของคุณ ${d.total} รูป`;
-  $("#grid").innerHTML = results.map((x, i) => `<button class="card" data-i="${i}" aria-label="เปิดรูปที่ ${i + 1} ความเหมือน ${x.similarity}%"><img src="${U(x.thumb)}" loading="lazy" alt="" referrerpolicy="no-referrer"><span class="pct">${x.similarity}%</span></button>`).join("");
+  $("#resT").innerHTML = `<svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg>พบรูปของคุณ ${d.total} รูป`;
+  $("#resTip").textContent = "ไม่ต้องการให้รูปของคุณอยู่ในคลัง? เปิดรูปนั้นแล้วกด “ขอลบรูป” ได้เลย";
+  $("#grid").innerHTML = results.map((x, i) => `<button class="card" data-i="${i}" aria-label="เปิดรูปที่ ${i + 1} ความเหมือน ${x.similarity}%"><img src="${U(x.thumb)}" loading="lazy" decoding="async" alt="" referrerpolicy="no-referrer"><span class="pct">${x.similarity}%</span></button>`).join("");
   $("#grid").querySelectorAll("img").forEach(img => img.addEventListener("error", () => {
+    if (!img.dataset.r) { img.dataset.r = 1; setTimeout(() => { img.src = img.src + (img.src.includes("?") ? "&" : "?") + "r=" + Date.now(); }, 700 + Math.random() * 1500); return; }   // Drive บางครั้งตอบช้า/จำกัดอัตรา: ลองโหลดซ้ำ 1 ครั้ง
     img.replaceWith(Object.assign(document.createElement("span"), { className: "ph", innerHTML: PH_SVG }));
-  }, { once: true }));
+  }));
   $("#res").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 $("#goBtn").onclick = search;
@@ -360,14 +681,122 @@ $("#grid").onclick = e => { const c = e.target.closest(".card"); if (c) show(+c.
 
 /* ---------- ดูรูปเต็ม ---------- */
 function show(i) {
-  cur = (i + results.length) % results.length; const x = results[cur];
-  $("#lbImg").src = U(x.full); $("#lbDl").href = U(x.download); $("#lbDl").download = `STSS-${cur + 1}.jpg`; $("#lbOpen").href = U(x.open);
-  $("#lbN").textContent = `${cur + 1} / ${results.length}`; $("#lb").classList.add("on"); document.body.style.overflow = "hidden";
+  cur = (i + results.length) % results.length; const x = results[cur], me = cur;
+  const im = $("#lbImg"), st = $("#stage");
+  st.classList.add("busy"); im.src = U(x.thumb);   // โชว์ภาพย่อที่โหลดแล้วทันที แล้วค่อยสลับเป็นภาพเต็ม
+  const full = new Image();
+  full.onload = () => { if (me === cur) { im.src = full.src; st.classList.remove("busy"); } };
+  full.onerror = () => { if (me === cur) st.classList.remove("busy"); };
+  full.src = U(x.full);
+  $("#lbDl").href = U(x.download); $("#lbDl").download = `STSS-${cur + 1}.jpg`; $("#lbOpen").href = U(x.open);
+  $("#lbN").textContent = `${cur + 1} / ${results.length}`; $("#lb").classList.add("on"); lock();
 }
-const hide = () => { $("#lb").classList.remove("on"); document.body.style.overflow = ""; };
+const hide = () => { $("#lb").classList.remove("on"); lock(); };
 $("#lbX").onclick = hide; $("#prev").onclick = () => show(cur - 1); $("#next").onclick = () => show(cur + 1);
-$("#lb").onclick = e => { if (e.target.id === "lb") hide(); };
-addEventListener("keydown", e => { if (!$("#lb").classList.contains("on")) return; if (e.key === "Escape") hide(); if (e.key === "ArrowLeft") show(cur - 1); if (e.key === "ArrowRight") show(cur + 1); });
+$("#lb").onclick = e => { if (e.target.id === "lb" || e.target.id === "stage") hide(); };
+let tx = 0, ty = 0;
+$("#stage").addEventListener("touchstart", e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+$("#stage").addEventListener("touchend", e => { const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(cur + (dx < 0 ? 1 : -1)); }, { passive: true });
+
+/* ---------- ขอลบรูป ---------- */
+const D = { id: "", token: "", step: 1, stream: null, state: "idle", busy: false };
+function dStep(n) {
+  D.step = n;
+  [1, 2, 3, 4].forEach(i => $("#ds" + i).hidden = i !== n);
+  $("#dDots").hidden = n === 4;
+  [...$("#dDots").children].forEach((b, i) => b.classList.toggle("on", i < Math.max(n - 0, 1) && i < n));
+  if (n !== 2) stopCam();
+  const b = $("#ds" + n + " .modal-body"); if (b) b.scrollTop = 0;
+}
+function openDel() {
+  const x = results[cur]; if (!x) return;
+  D.id = x.id; D.token = "";
+  $("#dPh").src = $("#dPh2").src = U(x.thumb);
+  ["fName", "fGrade", "fSid", "fWhy"].forEach(i => { $("#" + i).value = ""; $("#" + i).classList.remove("bad"); }); $("#fCnt").textContent = 0; $("#dErr").hidden = true;
+  setScan("idle"); dStep(1); $("#del").classList.add("on"); lock();
+  setTimeout(() => $("#d1Next").focus(), 50);
+}
+function closeDel() { stopCam(); $("#del").classList.remove("on"); lock(); }
+$("#lbDel").onclick = openDel;
+document.querySelectorAll("[data-dclose]").forEach(b => b.onclick = closeDel);
+$("#del").onclick = e => { if (e.target.id === "del" && D.step !== 3) closeDel(); };
+$("#d1Next").onclick = () => { dStep(2); setScan(D.token ? "ok" : "idle"); };
+$("#d2Back").onclick = () => dStep(1);
+
+function stopCam() { if (D.stream) D.stream.getTracks().forEach(t => t.stop()); D.stream = null; const v = $("#vid"); v.srcObject = null; $("#cam").classList.remove("live"); }
+function setScan(state, msg) {
+  D.state = state; const c = $("#cam"), v = $("#vstat"), m = $("#d2Main");
+  c.classList.toggle("check", state === "check"); c.classList.toggle("live", state === "live");
+  $("#camPh").hidden = state === "live" || state === "check";
+  v.className = "vstat"; m.disabled = false;
+  const set = (t, cls, label, dis) => { v.textContent = t; if (cls) v.classList.add(cls); m.textContent = label; m.disabled = !!dis; };
+  if (state === "idle") set("ยังไม่ได้สแกน", "", "เปิดกล้อง");
+  if (state === "live") set("จัดใบหน้าให้อยู่ในกรอบ แล้วกด “สแกนใบหน้า”", "", "สแกนใบหน้า");
+  if (state === "check") set("กำลังเทียบใบหน้ากับคนในรูป…", "", "กำลังตรวจสอบ…", true);
+  if (state === "ok") set("ยืนยันใบหน้าสำเร็จ ✓ คุณคือผู้ที่อยู่ในรูปนี้", "ok", "ถัดไป");
+  if (state === "fail") set(msg || "ยืนยันไม่สำเร็จ", "err", "สแกนใหม่");
+}
+async function startCam() {
+  if (!navigator.mediaDevices?.getUserMedia) return $("#camIn2").click();
+  try {
+    D.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+    const v = $("#vid"); v.srcObject = D.stream; await v.play(); setScan("live");
+  } catch { stopCam(); setScan("fail", "เปิดกล้องไม่ได้ (ยังไม่อนุญาตหรือไม่มีกล้อง) ลองกด “ถ่ายจากแอปกล้องแทน” ด้านล่าง"); }
+}
+async function snap() {
+  const v = $("#vid"); if (!v.videoWidth) return;
+  const k = Math.min(1, 1024 / Math.max(v.videoWidth, v.videoHeight));
+  const c = Object.assign(document.createElement("canvas"), { width: Math.round(v.videoWidth * k), height: Math.round(v.videoHeight * k) });
+  c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+  const blob = await new Promise(r => c.toBlob(r, "image/jpeg", .9));
+  stopCam(); verify(blob);
+}
+async function verify(blob) {
+  setScan("check");
+  try {
+    const fd = new FormData(); fd.append("file", blob, "scan.jpg"); fd.append("photo_id", D.id);
+    const r = await req("/api/delete/verify", { method: "POST", body: fd }, { retries: 2, timeout: 60000 });
+    if (!r.ok) return setScan("fail", errMsg(r));
+    if (!r.d.success) return setScan("fail", r.d.message);
+    D.token = r.d.token; setScan("ok"); setTimeout(() => { if (D.step === 2 && D.state === "ok") dStep(3); }, 900);
+  } catch (e) { setScan("fail", netMsg(e)); }
+}
+$("#d2Main").onclick = () => { if (D.state === "ok") return dStep(3); if (D.state === "live") return snap(); if (D.state === "idle" || D.state === "fail") startCam(); };
+$("#camAlt").onclick = () => $("#camIn2").click();
+$("#camIn2").addEventListener("change", async e => { const f = e.target.files[0]; e.target.value = ""; if (f) verify(await shrink(f, 1024)); });
+document.addEventListener("visibilitychange", () => { if (document.hidden && D.state === "live") { stopCam(); setScan("idle"); } });
+
+$("#fWhy").addEventListener("input", e => { $("#fCnt").textContent = e.target.value.length; });
+async function sendDel() {
+  if (D.busy) return;
+  const v = { name: $("#fName").value.trim(), grade: $("#fGrade").value.trim(), student_id: $("#fSid").value.trim(), reason: $("#fWhy").value.trim() };
+  const bad = { fName: v.name.length < 2, fGrade: !v.grade, fSid: !/^[0-9A-Za-z\-/]{3,20}$/.test(v.student_id), fWhy: v.reason.length < 10 };
+  Object.entries(bad).forEach(([id, b]) => $("#" + id).classList.toggle("bad", b));
+  const e = $("#dErr");
+  if (Object.values(bad).some(Boolean)) { e.hidden = false; e.textContent = "กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง (รหัสประจำตัวใช้ตัวเลข/ตัวอักษรภาษาอังกฤษ 3–20 ตัว เหตุผลอย่างน้อย 10 ตัวอักษร)"; return; }
+  e.hidden = true; D.busy = true;
+  const b = $("#d3Send"); b.disabled = true; b.innerHTML = '<span class="spin"></span>กำลังส่ง…';
+  try {
+    const r = await req("/api/delete/request", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: D.token, ...v }) }, { timeout: 40000 });
+    if (r.ok && r.d.success) { $("#dRef").textContent = r.d.ref; D.token = ""; return dStep(4); }
+    if (r.status === 400) { D.token = ""; dStep(2); return setScan("fail", errMsg(r)); }
+    e.hidden = false; e.textContent = errMsg(r);
+  } catch (x) { e.hidden = false; e.textContent = netMsg(x); }
+  finally { D.busy = false; b.disabled = false; b.textContent = "ส่งคำขอลบรูป"; }
+}
+$("#d3Send").onclick = sendDel;
+
+/* ---------- คีย์ลัด (ปิดตามลำดับชั้นบนสุดก่อน) ---------- */
+addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    if ($("#tm").classList.contains("open")) return tmSet(false);
+    if ($("#del").classList.contains("on")) return closeDel();
+    if ($("#tnc").classList.contains("on")) return closeTnc();
+    if ($("#lb").classList.contains("on")) return hide();
+  }
+  if (!$("#lb").classList.contains("on") || document.querySelector(".modal.on")) return;
+  if (e.key === "ArrowLeft") show(cur - 1); if (e.key === "ArrowRight") show(cur + 1);
+});
 </script>
 </body>
 </html>
