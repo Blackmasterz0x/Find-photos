@@ -36,18 +36,22 @@ def startup():
     
     z = np.load(path)
     
-    # --- ส่วนที่แก้ไขให้เข้ากับฐานข้อมูลจาก Colab ---
     emb_data = z["embeddings"] if "embeddings" in z else z["emb"]
+    emb_data = emb_data.astype(np.float32)
+    
+    # แก้ปัญหาเปอร์เซ็นต์เกิน 100% (Normalization)
+    norms = np.linalg.norm(emb_data, axis=1, keepdims=True)
+    emb_data = np.divide(emb_data, norms, out=emb_data, where=norms != 0)
+
     owner_data = z["owner"] if "owner" in z else np.arange(len(emb_data), dtype=np.int32)
     
     S.update(emb=emb_data, 
              owner=owner_data, 
              names=z["names"], 
-             src=str(z["source"]) if "source" in z else "local",
-             scale=255.0 if emb_data.dtype == np.int8 else 1.0)
+             src="drive",  # บังคับดึงรูปจาก Google Drive เสมอ (แก้รูปไม่ขึ้น)
+             scale=1.0)
              
     print(f"✅ พร้อมใช้งาน: {len(S['names'])} รูป / {len(S['emb'])} ใบหน้า / โมเดล {MODEL}")
-    # ----------------------------------------------
 
 
 def urls(n):
