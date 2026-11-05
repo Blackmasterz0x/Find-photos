@@ -51,7 +51,7 @@ body{margin:0;min-height:100vh;min-height:100dvh;color:var(--tx);font:400 16px/1
 svg.ic{width:1.1em;height:1.1em;vertical-align:-.18em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 button{font-family:inherit}
 
-/* พื้นหลัง: ใช้ radial-gradient แทน blur เพื่อให้ลื่นบนมือถือ */
+/* พื้นหลัง */
 .bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
 .bg::before{content:"";position:absolute;inset:0;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:48px 48px;-webkit-mask-image:radial-gradient(ellipse at 50% 25%,#000 15%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 25%,#000 15%,transparent 75%)}
 .orb{position:absolute;border-radius:50%;opacity:var(--orb-op);animation:drift 18s ease-in-out infinite alternate;will-change:transform}
@@ -167,15 +167,15 @@ main{width:min(780px,100%);margin:0 auto;padding:22px 16px calc(32px + env(safe-
 .sk{aspect-ratio:4/5;border-radius:16px;background:linear-gradient(100deg,var(--sunk) 30%,rgba(var(--ac-rgb),.14) 50%,var(--sunk) 70%) 0 0/300% 100%;animation:sk 1.3s linear infinite}
 @keyframes sk{to{background-position:-300% 0}}
 
-/* ดูรูปเต็ม (ไม่ล้นจอมือถือ) */
-.lb{position:fixed;inset:0;z-index:50;background:var(--ov);display:none;flex-direction:column;align-items:center;gap:12px;padding:calc(58px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));height:100vh;height:100dvh}
+/* ดูรูปเต็ม (ปรับแก้ Layout แยกแถบเมนู ยึด dvh ป้องกันจมขอบล่างใน iPad) */
+.lb{position:fixed;inset:0;z-index:50;background:var(--ov);display:none;flex-direction:column;align-items:center;gap:10px;padding:calc(48px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom));height:100dvh;box-sizing:border-color}
 .lb.on{display:flex}
-.stage{position:relative;flex:1;min-height:0;width:100%;display:grid;place-items:center;touch-action:pan-y}
+.stage{position:relative;flex:1;min-height:0;width:100%;display:grid;place-items:center;touch-action:pan-y;overflow:hidden}
 .stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:12px;border:2px solid var(--ac);box-shadow:0 0 36px rgba(var(--ac-rgb),calc(.38*var(--gl)));transition:opacity .2s}
 .stage.busy img{opacity:.75}
 .stage .spin{position:absolute;top:12px;right:12px;color:var(--ac);display:none}
 .stage.busy .spin{display:block}
-.lbar{width:min(560px,100%);display:grid;gap:8px;flex:none}
+.lbar{width:min(560px,100%);display:grid;gap:8px;flex:none;z-index:2}
 .lnav{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:8px}
 .lnav .btn{padding:8px 0;font-size:1.3rem;line-height:1}
 .lnav span{text-align:center;color:var(--mu)}
@@ -224,10 +224,15 @@ main{width:min(780px,100%);margin:0 auto;padding:22px 16px calc(32px + env(safe-
 .dlist{margin:0 0 6px;padding:0;list-style:none;display:grid;gap:9px}
 .dlist li{display:flex;gap:10px;color:var(--mu);align-items:flex-start}
 .dlist li::before{content:"";width:7px;height:7px;margin-top:.62em;border-radius:50%;background:var(--warn);box-shadow:0 0 8px var(--warn);flex:none}
+
+/* เพิ่มเอฟเฟกต์กรอบจับใบหน้าอัตโนมัติ */
 .cam{position:relative;width:min(100%,300px);aspect-ratio:3/4;max-height:44vh;max-height:44dvh;margin:0 auto 12px;border-radius:20px;overflow:hidden;background:#05070d;border:2px solid var(--ac);box-shadow:0 0 28px rgba(var(--ac-rgb),calc(.35*var(--gl)));display:grid;place-items:center;color:#8fb4c8}
 .cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
 .cam .oval{position:absolute;inset:9% 17%;border:2px dashed rgba(255,255,255,.75);border-radius:50%;pointer-events:none;display:none}
 .cam.live .oval{display:block}
+.oval-tracker{position:absolute;inset:15% 20%;border:2px solid var(--ok);border-radius:50%;box-shadow:0 0 18px var(--ok);display:none;animation:pulseTrack 1s infinite alternate;pointer-events:none}
+.cam.tracking .oval-tracker{display:block}
+@keyframes pulseTrack{0%{transform:scale(0.98);opacity:0.8}100%{transform:scale(1.02);opacity:1}}
 .cam.check::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--ac);box-shadow:0 0 16px 4px rgba(var(--ac-rgb),.9);animation:sweepc 1.1s ease-in-out infinite alternate}
 @keyframes sweepc{from{top:8%}to{top:92%}}
 .cam .ic{width:44px;height:44px;stroke-width:1.4;color:var(--ac)}
@@ -439,17 +444,17 @@ footer a{color:var(--ac)}
       </div>
     </div>
 
-    <!-- ขั้น 2: สแกนใบหน้า -->
+    <!-- ขั้น 2: สแกนใบหน้า (เพิ่ม Tracker จับภาพอัตโนมัติ) -->
     <div class="dstep" id="ds2" hidden>
       <div class="modal-body">
         <p style="margin-bottom:12px">สแกนใบหน้าของคุณ เพื่อยืนยันว่าคุณคือคนที่อยู่ในรูปนี้</p>
         <div class="cam" id="cam">
-          <video id="vid" playsinline muted></video><div class="oval"></div>
-          <div class="cam-ph" id="camPh"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cam"/></svg><span>กด “เปิดกล้อง” แล้วมองกล้องตรง ๆ<br>ในที่ที่มีแสงสว่าง</span></div>
+          <video id="vid" playsinline muted></video>
+          <div class="oval"></div>
+          <div class="oval-tracker" id="ovalTrack"></div>
+          <div class="cam-ph" id="camPh"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cam"/></svg><span>กด “เปิดกล้อง” แล้วมองกล้องตรง ๆ<br>ระบบจะประมวลผลจับใบหน้าให้อัตโนมัติ</span></div>
         </div>
         <div class="vstat" id="vstat">ยังไม่ได้สแกน</div>
-        <input type="file" id="camIn2" accept="image/*" capture="user" hidden>
-        <p style="text-align:center;margin:12px 0 0;font-size:.82rem"><button class="tnc-link" id="camAlt" type="button">เปิดกล้องในหน้านี้ไม่ได้? ถ่ายจากแอปกล้องแทน</button></p>
       </div>
       <div class="modal-foot">
         <button class="btn" type="button" id="d2Back">ย้อนกลับ</button>
@@ -511,7 +516,7 @@ footer a{color:var(--ac)}
 </div>
 
 <script>
-const API = "";   // ใช้โฮสต์เดียวกัน = ว่างไว้ | ถ้าแยกโฮสต์ UI ใส่ URL ของ API เช่น "https://xxx.onrender.com"
+const API = "";
 const $ = s => document.querySelector(s);
 const U = u => u.startsWith("/") ? API + u : u;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -540,7 +545,7 @@ document.querySelectorAll(".tm-opt").forEach(b => b.onclick = () => { applyTheme
 document.addEventListener("click", e => { if (!e.target.closest("#tm")) tmSet(false); });
 
 /* ---------- ข้อกำหนดและเงื่อนไขการใช้งาน ---------- */
-const CKEY = "stss_tnc_accept_v2";   // เปลี่ยนเวอร์ชัน = ให้ผู้ใช้เดิมอ่านและยอมรับข้อกำหนดที่แก้ไขใหม่อีกครั้ง
+const CKEY = "stss_tnc_accept_v2";
 const consented = () => { try { return localStorage.getItem(CKEY) === "1"; } catch { return false; } };
 const openTnc = () => { $("#tnc").classList.add("on"); lock(); };
 const closeTnc = () => { $("#tnc").classList.remove("on"); lock(); };
@@ -548,9 +553,9 @@ $("#tncOpen").onclick = openTnc;
 $("#tncClose").onclick = closeTnc;
 $("#tncAccept").onclick = () => { try { localStorage.setItem(CKEY, "1"); } catch {} closeTnc(); };
 $("#tnc").onclick = e => { if (e.target.id === "tnc") closeTnc(); };
-if (!consented()) openTnc();   // แสดงอัตโนมัติจนกว่าจะกดยอมรับ
+if (!consented()) openTnc();
 
-/* ---------- เรียก API (timeout + ลองใหม่อัตโนมัติเมื่อเซิร์ฟเวอร์กำลังเริ่ม/หลุดชั่วคราว) ---------- */
+/* ---------- เรียก API ---------- */
 async function req(url, opt = {}, { retries = 0, timeout = 60000 } = {}) {
   let last;
   for (let a = 0; a <= retries; a++) {
@@ -671,7 +676,7 @@ function render(d) {
   $("#resTip").textContent = "ไม่ต้องการให้รูปของคุณอยู่ในคลัง? เปิดรูปนั้นแล้วกด “ขอลบรูป” ได้เลย";
   $("#grid").innerHTML = results.map((x, i) => `<button class="card" data-i="${i}" aria-label="เปิดรูปที่ ${i + 1} ความเหมือน ${x.similarity}%"><img src="${U(x.thumb)}" loading="lazy" decoding="async" alt="" referrerpolicy="no-referrer"><span class="pct">${x.similarity}%</span></button>`).join("");
   $("#grid").querySelectorAll("img").forEach(img => img.addEventListener("error", () => {
-    if (!img.dataset.r) { img.dataset.r = 1; setTimeout(() => { img.src = img.src + (img.src.includes("?") ? "&" : "?") + "r=" + Date.now(); }, 700 + Math.random() * 1500); return; }   // Drive บางครั้งตอบช้า/จำกัดอัตรา: ลองโหลดซ้ำ 1 ครั้ง
+    if (!img.dataset.r) { img.dataset.r = 1; setTimeout(() => { img.src = img.src + (img.src.includes("?") ? "&" : "?") + "r=" + Date.now(); }, 700 + Math.random() * 1500); return; }
     img.replaceWith(Object.assign(document.createElement("span"), { className: "ph", innerHTML: PH_SVG }));
   }));
   $("#res").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -683,7 +688,7 @@ $("#grid").onclick = e => { const c = e.target.closest(".card"); if (c) show(+c.
 function show(i) {
   cur = (i + results.length) % results.length; const x = results[cur], me = cur;
   const im = $("#lbImg"), st = $("#stage");
-  st.classList.add("busy"); im.src = U(x.thumb);   // โชว์ภาพย่อที่โหลดแล้วทันที แล้วค่อยสลับเป็นภาพเต็ม
+  st.classList.add("busy"); im.src = U(x.thumb);
   const full = new Image();
   full.onload = () => { if (me === cur) { im.src = full.src; st.classList.remove("busy"); } };
   full.onerror = () => { if (me === cur) st.classList.remove("busy"); };
@@ -699,7 +704,7 @@ $("#stage").addEventListener("touchstart", e => { tx = e.touches[0].clientX; ty 
 $("#stage").addEventListener("touchend", e => { const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(cur + (dx < 0 ? 1 : -1)); }, { passive: true });
 
 /* ---------- ขอลบรูป ---------- */
-const D = { id: "", token: "", step: 1, stream: null, state: "idle", busy: false };
+const D = { id: "", token: "", step: 1, stream: null, state: "idle", busy: false, autoTimer: null };
 function dStep(n) {
   D.step = n;
   [1, 2, 3, 4].forEach(i => $("#ds" + i).hidden = i !== n);
@@ -723,7 +728,15 @@ $("#del").onclick = e => { if (e.target.id === "del" && D.step !== 3) closeDel()
 $("#d1Next").onclick = () => { dStep(2); setScan(D.token ? "ok" : "idle"); };
 $("#d2Back").onclick = () => dStep(1);
 
-function stopCam() { if (D.stream) D.stream.getTracks().forEach(t => t.stop()); D.stream = null; const v = $("#vid"); v.srcObject = null; $("#cam").classList.remove("live"); }
+function stopCam() { 
+  if (D.autoTimer) clearInterval(D.autoTimer);
+  D.autoTimer = null;
+  if (D.stream) D.stream.getTracks().forEach(t => t.stop()); 
+  D.stream = null; 
+  const v = $("#vid"); v.srcObject = null; 
+  $("#cam").classList.remove("live", "tracking"); 
+}
+
 function setScan(state, msg) {
   D.state = state; const c = $("#cam"), v = $("#vstat"), m = $("#d2Main");
   c.classList.toggle("check", state === "check"); c.classList.toggle("live", state === "live");
@@ -731,18 +744,34 @@ function setScan(state, msg) {
   v.className = "vstat"; m.disabled = false;
   const set = (t, cls, label, dis) => { v.textContent = t; if (cls) v.classList.add(cls); m.textContent = label; m.disabled = !!dis; };
   if (state === "idle") set("ยังไม่ได้สแกน", "", "เปิดกล้อง");
-  if (state === "live") set("จัดใบหน้าให้อยู่ในกรอบ แล้วกด “สแกนใบหน้า”", "", "สแกนใบหน้า");
+  if (state === "live") set("วางใบหน้าให้อยู่ตรงกลาง กล้องกำลังประมวลผลจับภาพ…", "", "กำลังตรวจจับ…", true);
   if (state === "check") set("กำลังเทียบใบหน้ากับคนในรูป…", "", "กำลังตรวจสอบ…", true);
   if (state === "ok") set("ยืนยันใบหน้าสำเร็จ ✓ คุณคือผู้ที่อยู่ในรูปนี้", "ok", "ถัดไป");
   if (state === "fail") set(msg || "ยืนยันไม่สำเร็จ", "err", "สแกนใหม่");
 }
+
+/* บังคับใช้ getUserMedia และตรวจจับประมวลผลใบหน้าสแกนอัตโนมัติ */
 async function startCam() {
-  if (!navigator.mediaDevices?.getUserMedia) return $("#camIn2").click();
+  if (!navigator.mediaDevices?.getUserMedia) {
+    return setScan("fail", "อุปกรณ์ของคุณไม่รองรับการเปิดกล้องสด กรุณาใช้งานผ่านสมาร์ทโฟน");
+  }
   try {
     D.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
-    const v = $("#vid"); v.srcObject = D.stream; await v.play(); setScan("live");
-  } catch { stopCam(); setScan("fail", "เปิดกล้องไม่ได้ (ยังไม่อนุญาตหรือไม่มีกล้อง) ลองกด “ถ่ายจากแอปกล้องแทน” ด้านล่าง"); }
+    const v = $("#vid"); v.srcObject = D.stream; await v.play(); 
+    setScan("live");
+    
+    // แสดงเอฟเฟกต์กรอบจับใบหน้า และเริ่มสแกนอัตโนมัติหลังเปิดกล้อง 1.8 วินาที
+    $("#cam").classList.add("tracking");
+    if (D.autoTimer) clearInterval(D.autoTimer);
+    D.autoTimer = setTimeout(() => {
+      if (D.state === "live") snap();
+    }, 1800);
+  } catch { 
+    stopCam(); 
+    setScan("fail", "ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตให้สิทธิ์การเข้าถึงกล้องเบราว์เซอร์"); 
+  }
 }
+
 async function snap() {
   const v = $("#vid"); if (!v.videoWidth) return;
   const k = Math.min(1, 1024 / Math.max(v.videoWidth, v.videoHeight));
@@ -751,6 +780,7 @@ async function snap() {
   const blob = await new Promise(r => c.toBlob(r, "image/jpeg", .9));
   stopCam(); verify(blob);
 }
+
 async function verify(blob) {
   setScan("check");
   try {
@@ -761,9 +791,12 @@ async function verify(blob) {
     D.token = r.d.token; setScan("ok"); setTimeout(() => { if (D.step === 2 && D.state === "ok") dStep(3); }, 900);
   } catch (e) { setScan("fail", netMsg(e)); }
 }
-$("#d2Main").onclick = () => { if (D.state === "ok") return dStep(3); if (D.state === "live") return snap(); if (D.state === "idle" || D.state === "fail") startCam(); };
-$("#camAlt").onclick = () => $("#camIn2").click();
-$("#camIn2").addEventListener("change", async e => { const f = e.target.files[0]; e.target.value = ""; if (f) verify(await shrink(f, 1024)); });
+
+$("#d2Main").onclick = () => { 
+  if (D.state === "ok") return dStep(3); 
+  if (D.state === "idle" || D.state === "fail") startCam(); 
+};
+
 document.addEventListener("visibilitychange", () => { if (document.hidden && D.state === "live") { stopCam(); setScan("idle"); } });
 
 $("#fWhy").addEventListener("input", e => { $("#fCnt").textContent = e.target.value.length; });
@@ -786,7 +819,7 @@ async function sendDel() {
 }
 $("#d3Send").onclick = sendDel;
 
-/* ---------- คีย์ลัด (ปิดตามลำดับชั้นบนสุดก่อน) ---------- */
+/* ---------- คีย์ลัด ---------- */
 addEventListener("keydown", e => {
   if (e.key === "Escape") {
     if ($("#tm").classList.contains("open")) return tmSet(false);

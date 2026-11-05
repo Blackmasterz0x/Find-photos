@@ -14,17 +14,17 @@ from PIL import Image, ImageOps
 from pydantic import BaseModel, Field
 
 MODEL = os.getenv("MODEL_NAME", "buffalo_sc")
-ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")    # ใส่โดเมนโรงเรียนเมื่อแยกโฮสต์ UI
-SHEET_LOG_URL = os.getenv("SHEET_LOG_URL", "")             # ลิงก์ Apps Script Web App (ชีตเดิมที่มีโนติ) สำหรับ log ค้นหา
-DELETE_SHEET_URL = os.getenv("DELETE_SHEET_URL", "") or SHEET_LOG_URL   # คำขอลบรูป: ถ้าไม่ตั้ง จะใช้ลิงก์เดียวกับ SHEET_LOG_URL (สคริปต์แยกแท็บให้เองด้วย type)
-EMB_URL = os.getenv("EMB_URL", "")                         # ถ้าไฟล์ embeddings ใหญ่เกินใส่ใน GitHub: ใส่ลิงก์ดาวน์โหลดตรงที่นี่
-SELF_URL = os.getenv("KEEPALIVE_URL", "") or os.getenv("RENDER_EXTERNAL_URL", "")   # Render ตั้ง RENDER_EXTERNAL_URL ให้เอง
-KEEPALIVE_SEC = max(60, int(os.getenv("KEEPALIVE_SEC", "240")))                     # Render พักเครื่องหลังไม่มีทราฟฟิก 15 นาที → ปลุกทุก 4 นาที
-DELETE_MIN_SIM = float(os.getenv("DELETE_MIN_SIM", "0.42"))   # ความเหมือนขั้นต่ำของใบหน้าผู้ขอลบกับใบหน้าในรูป
+ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+SHEET_LOG_URL = os.getenv("SHEET_LOG_URL", "")
+DELETE_SHEET_URL = os.getenv("DELETE_SHEET_URL", "") or SHEET_LOG_URL
+EMB_URL = os.getenv("EMB_URL", "")
+SELF_URL = os.getenv("KEEPALIVE_URL", "") or os.getenv("RENDER_EXTERNAL_URL", "")
+KEEPALIVE_SEC = max(60, int(os.getenv("KEEPALIVE_SEC", "240")))
+DELETE_MIN_SIM = float(os.getenv("DELETE_MIN_SIM", "0.42"))
 TOKEN_SECRET = (os.getenv("TOKEN_SECRET") or secrets.token_hex(32)).encode()
 TOKEN_TTL = 20 * 60
 MAX_BYTES, RATE_PER_MIN = 10 * 1024 * 1024, 12
-MAX_PARALLEL = int(os.getenv("MAX_PARALLEL", "2"))        # จำกัดงานสแกนใบหน้าพร้อมกัน กัน RAM/CPU เต็มบนเครื่องเล็ก
+MAX_PARALLEL = int(os.getenv("MAX_PARALLEL", "2"))
 TZ_TH = timezone(timedelta(hours=7))
 
 S = {"fa": None, "emb": np.zeros((0, 512), np.int8), "inv": np.zeros(0, np.float32), "owner": np.zeros(0, np.int32),
@@ -46,7 +46,6 @@ def load_index():
         return
     z = np.load(path)
     emb = z["embeddings"] if "embeddings" in z else z["emb"]
-    # เก็บเป็นชนิดเดิม (int8 ประหยัด RAM ~4 เท่า) แล้วเก็บ 1/ความยาวเวกเตอร์ไว้ปรับให้เป็น cosine ตอนค้นหา → ไม่เกิน 100%
     inv = np.empty(len(emb), np.float32)
     for a in range(0, len(emb), 20000):
         n = np.linalg.norm(emb[a:a + 20000].astype(np.float32), axis=1)
@@ -57,7 +56,7 @@ def load_index():
         print(f"⚠️ embeddings สร้างจากโมเดล {z['model']} แต่ระบบใช้ {MODEL} — ผลค้นหาจะไม่แม่น", flush=True)
     S.update(emb=emb, inv=inv, owner=owner.astype(np.int32), names=names,
              index={str(n): i for i, n in enumerate(names)},
-             src="drive")  # รูปดึงจาก Google Drive เสมอ
+             src="drive")
     print(f"✅ พร้อมใช้งาน: {len(names)} รูป / {len(emb)} ใบหน้า / โมเดล {MODEL}", flush=True)
 
 
@@ -76,7 +75,6 @@ def _ping_self():
 
 
 async def keepalive():
-    # ยิงเข้าโดเมนสาธารณะของตัวเอง เพื่อให้ Render นับเป็น "ทราฟฟิกขาเข้า" และไม่พักเครื่อง (ทำงานได้ตราบที่เครื่องยังตื่นอยู่)
     while True:
         await asyncio.sleep(KEEPALIVE_SEC)
         await asyncio.to_thread(_ping_self)
@@ -89,7 +87,7 @@ async def lifespan(_: FastAPI):
     if SELF_URL and os.getenv("KEEPALIVE", "1") != "0":
         task = asyncio.create_task(keepalive())
         print(f"[keepalive] เปิดใช้งาน ทุก {KEEPALIVE_SEC}s → {SELF_URL}", flush=True)
-    asyncio.get_running_loop().run_in_executor(None, load_all)   # โหลดโมเดลเบื้องหลัง เซิร์ฟเวอร์ตอบ /healthz ได้ทันที (Render ไม่ timeout ตอนบูต)
+    asyncio.get_running_loop().run_in_executor(None, load_all)
     try:
         yield
     finally:
@@ -103,14 +101,13 @@ app.add_middleware(CORSMiddleware, allow_origins=ORIGINS, allow_methods=["*"], a
 
 # ───────────────────────── ตัวช่วย ─────────────────────────
 def urls(n):
-    if S["src"] == "drive":   # รูปอยู่ใน Google Drive: ส่งแค่รหัสไฟล์ ไม่ต้องโฮสต์รูปเอง
+    if S["src"] == "drive":
         return {"thumb": f"https://drive.google.com/thumbnail?id={n}&sz=w480", "full": f"https://drive.google.com/thumbnail?id={n}&sz=w1600",
                 "open": f"https://drive.google.com/file/d/{n}/view", "download": f"https://drive.google.com/uc?export=download&id={n}"}
     return {"thumb": f"/thumbs/{n}", "full": f"/photos/{n}", "open": f"/photos/{n}", "download": f"/photos/{n}"}
 
 
 def score(q, rows=None):
-    """cosine similarity ระหว่างใบหน้า q (หน่วยความยาว 1) กับใบหน้าในคลัง คำนวณเป็นก้อน ๆ ประหยัด RAM"""
     emb, inv = S["emb"], S["inv"]
     if rows is not None:
         return (emb[rows].astype(np.float32) @ q) * inv[rows]
@@ -139,7 +136,7 @@ def guard(request: Request):
     return ip
 
 
-def prune():   # ล้างข้อมูลจำกัดอัตราที่หมดอายุ กัน dict โตไม่จำกัด
+def prune():
     now = time.time()
     for bucket, win in ((hits, 60), (dhits, 3600)):
         for k in [k for k, q in bucket.items() if not q or now - q[-1] > win]:
@@ -148,22 +145,32 @@ def prune():   # ล้างข้อมูลจำกัดอัตราท
         used_tokens.pop(k, None)
 
 
+# แก้ไข post_json ให้รองรับ Redirect 302 ของ Google Apps Script แบบไม่เสีย Payload
 def post_json(url, row, timeout=10):
-    req = urllib.request.Request(url, data=json.dumps(row).encode(), headers={"Content-Type": "application/json"}, method="POST")
-    return urllib.request.urlopen(req, timeout=timeout).read()
+    data_bytes = json.dumps(row).encode("utf-8")
+    curr_url = url
+    for _ in range(3):
+        req = urllib.request.Request(curr_url, data=data_bytes, headers={"Content-Type": "application/json"}, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.read()
+        except urllib.error.HTTPError as e:
+            if e.code in (301, 302, 303, 307, 308) and "Location" in e.headers:
+                curr_url = e.headers["Location"]
+                continue
+            raise e
 
 
 def send_to_sheet(row: dict):
     if not SHEET_LOG_URL:
         return
     try:
-        post_json(SHEET_LOG_URL, row, timeout=5)
+        post_json(SHEET_LOG_URL, row, timeout=8)
     except Exception as e:
-        print(f"[sheet] ส่ง log เข้าชีตไม่สำเร็จ: {e}", flush=True)   # ไม่ทำให้การค้นหาของผู้ใช้ล้มเหลวตามไปด้วย
+        print(f"[sheet] ส่ง log เข้าชีตไม่สำเร็จ: {e}", flush=True)
 
 
 def log(ip, thr, outcome, t0, bg: BackgroundTasks, faces=0, matches=0):
-    # บันทึกเฉพาะสถิติ ไม่เก็บตัวรูปภาพหรือค่า embedding ใบหน้า (ให้ตรงกับข้อกำหนดที่แจ้งผู้ใช้ไว้)
     ms = int((time.time() - t0) * 1000)
     print(f"[search] ip={ip} thr={thr} outcome={outcome} faces={faces} matches={matches} ms={ms}", flush=True)
     bg.add_task(send_to_sheet, {"type": "search", "ip": ip, "threshold": thr, "outcome": outcome, "faces": faces, "matches": matches, "ms": ms})
@@ -182,7 +189,6 @@ def read_image(file: UploadFile):
 
 
 def detect(bgr):
-    """สแกนใบหน้า (ทีละงาน จำกัดจำนวนพร้อมกัน) แล้วคืนรายการใบหน้า"""
     if not gate.acquire(timeout=45):
         raise HTTPException(503, "ระบบกำลังมีผู้ใช้งานจำนวนมาก ลองใหม่อีกครั้งในอีกสักครู่")
     try:
@@ -215,13 +221,13 @@ def read_token(tok: str):
 
 def clean(s: str, n: int) -> str:
     s = re.sub(r"\s+", " ", (s or "").replace("\x00", "")).strip()[:n]
-    return "'" + s if s[:1] in ("=", "+", "-", "@") else s   # กันสูตรแทรกในชีต
+    return "'" + s if s[:1] in ("=", "+", "-", "@") else s
 
 
 # ───────────────────────── API ─────────────────────────
 @app.get("/healthz")
 def healthz():
-    return {"ok": True}   # เบา ไม่แตะโมเดล ใช้เป็น Health Check ของ Render และให้ UptimeRobot ยิง
+    return {"ok": True}
 
 
 @app.get("/api/info")
@@ -247,20 +253,19 @@ def search(request: Request, background_tasks: BackgroundTasks, file: UploadFile
         log(ip, min_similarity, "no_face", t0, background_tasks)
         return {"success": False, "message": "ไม่พบใบหน้าในรูป ลองใช้รูปที่เห็นหน้าตรง สว่าง และชัดเจน"}
 
-    me = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))   # ใบหน้าที่ใหญ่สุด
-    sims = score(me.normed_embedding.astype(np.float32))                       # cosine similarity ทุกใบหน้าในคลัง
+    me = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
+    sims = score(me.normed_embedding.astype(np.float32))
     best = np.full(len(S["names"]), -1.0, np.float32)
-    np.maximum.at(best, S["owner"], sims)                       # คะแนนดีที่สุดต่อรูป (รูปหมู่ไม่ซ้ำ)
+    np.maximum.at(best, S["owner"], sims)
     idx = np.where(best >= min(max(min_similarity, 0.2), 0.8))[0]
     idx = idx[np.argsort(-best[idx])]
-    results = [{"id": str(S["names"][i]), **urls(str(S["names"][i])), "similarity": round(min(float(best[i]), 1.0) * 100, 1)} for i in idx[:300]]   # แสดงสูงสุด 300 รูป
+    results = [{"id": str(S["names"][i]), **urls(str(S["names"][i])), "similarity": round(min(float(best[i]), 1.0) * 100, 1)} for i in idx[:300]]
     log(ip, min_similarity, "ok", t0, background_tasks, faces=len(faces), matches=len(idx))
     return {"success": True, "faces_in_upload": len(faces), "total": int(len(idx)), "shown": len(results), "results": results}
 
 
 @app.post("/api/delete/verify")
 def delete_verify(request: Request, file: UploadFile = File(...), photo_id: str = Form(...)):
-    """ขั้น 1 ของการขอลบ: เทียบใบหน้าที่สแกนสดกับใบหน้าทุกคนในรูปที่ขอลบ ผ่านแล้วได้ token อายุ 20 นาที (ไม่เก็บรูปที่สแกน)"""
     ip = client_ip(request)
     limit(dhits, ip, 8, 600, "ตรวจใบหน้าถี่เกินไป รอสักครู่แล้วลองใหม่")
     need_ready()
@@ -304,7 +309,7 @@ def delete_request(request: Request, body: DeleteReq):
            "photo_url": f"https://drive.google.com/file/d/{pid}/view", "name": clean(body.name, 100), "grade": clean(body.grade, 30),
            "student_id": clean(body.student_id, 20), "reason": clean(body.reason, 600), "face_match": round(tok["s"] * 100, 1),
            "ip": ip, "status": "รอพิจารณา"}
-    for attempt in (1, 2):   # คำขอลบสำคัญ ต้องส่งเข้าชีตให้สำเร็จจริงก่อนตอบผู้ใช้
+    for attempt in (1, 2):
         try:
             post_json(DELETE_SHEET_URL, row, timeout=15)
             break
