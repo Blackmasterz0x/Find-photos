@@ -168,7 +168,7 @@ main{width:min(780px,100%);margin:0 auto;padding:22px 16px calc(32px + env(safe-
 @keyframes sk{to{background-position:-300% 0}}
 
 /* ดูรูปเต็ม (ปรับแก้ Layout แยกแถบเมนู ยึด dvh ป้องกันจมขอบล่างใน iPad) */
-.lb{position:fixed;inset:0;z-index:50;background:var(--ov);display:none;flex-direction:column;align-items:center;gap:10px;padding:calc(48px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom));height:100dvh;box-sizing:border-color}
+.lb{position:fixed;inset:0;z-index:50;background:var(--ov);display:none;flex-direction:column;align-items:center;gap:10px;padding:calc(48px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom));height:100dvh;box-sizing:border-box}
 .lb.on{display:flex}
 .stage{position:relative;flex:1;min-height:0;width:100%;display:grid;place-items:center;touch-action:pan-y;overflow:hidden}
 .stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:12px;border:2px solid var(--ac);box-shadow:0 0 36px rgba(var(--ac-rgb),calc(.38*var(--gl)));transition:opacity .2s}
