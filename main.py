@@ -202,24 +202,6 @@ def need_ready():
         raise HTTPException(503, "ระบบกำลังเริ่มทำงาน ลองใหม่อีกครั้งในอีกสักครู่")
 
 
-# เพิ่มฟังก์ชันตรวจสอบว่าไฟล์ใน Google Drive ยังมีอยู่หรือไม่
-def is_image_valid(photo_id: str) -> bool:
-    if S["src"] != "drive":
-        return True
-    try:
-        url = f"https://drive.google.com/thumbnail?id={photo_id}&sz=w50"
-        req = urllib.request.Request(url, method="HEAD")
-        with urllib.request.urlopen(req, timeout=3) as resp:
-            return resp.status == 200
-    except urllib.error.HTTPError as e:
-        # 403 หรือ 404 มักหมายถึงไฟล์ถูกลบ ถังขยะ หรือไม่มีสิทธิ์เข้าถึง
-        if e.code in (403, 404):
-            return False
-        return True
-    except Exception:
-        return True
-
-
 # ───────────────────────── ใบยืนยันใบหน้า (token) ─────────────────────────
 def make_token(photo_id: str, sim: float) -> str:
     body = base64.urlsafe_b64encode(json.dumps({"p": photo_id, "s": round(sim, 3), "e": int(time.time()) + TOKEN_TTL, "n": secrets.token_hex(6)}).encode()).decode()
@@ -277,27 +259,9 @@ def search(request: Request, background_tasks: BackgroundTasks, file: UploadFile
     np.maximum.at(best, S["owner"], sims)
     idx = np.where(best >= min(max(min_similarity, 0.2), 0.8))[0]
     idx = idx[np.argsort(-best[idx])]
-    
-    # วนลูปตรวจสอบสถานะไฟล์ก่อนส่งผลลัพธ์
-    results = []
-    MAX_RESULTS = 300
-    for i in idx:
-        if len(results) >= MAX_RESULTS:
-            break
-            
-        photo_id = str(S["names"][i])
-        # ข้ามรูปที่ถูกลบออกจาก Drive ไปแล้ว
-        if not is_image_valid(photo_id):
-            continue
-            
-        results.append({
-            "id": photo_id,
-            **urls(photo_id),
-            "similarity": round(min(float(best[i]), 1.0) * 100, 1)
-        })
-
-    log(ip, min_similarity, "ok", t0, background_tasks, faces=len(faces), matches=len(results))
-    return {"success": True, "faces_in_upload": len(faces), "total": int(len(results)), "shown": len(results), "results": results}
+    results = [{"id": str(S["names"][i]), **urls(str(S["names"][i])), "similarity": round(min(float(best[i]), 1.0) * 100, 1)} for i in idx[:300]]
+    log(ip, min_similarity, "ok", t0, background_tasks, faces=len(faces), matches=len(idx))
+    return {"success": True, "faces_in_upload": len(faces), "total": int(len(idx)), "shown": len(results), "results": results}
 
 
 @app.post("/api/delete/verify")
