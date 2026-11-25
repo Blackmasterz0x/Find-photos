@@ -10,7 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt onnxruntime
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir "numpy==1.24.4" "onnxruntime==1.17.3" && \
+    python -c "import onnxruntime, insightface; print('ONNX OK:', onnxruntime.__version__)"
 
 COPY . .
 
