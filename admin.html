@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark" data-pref="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#04050a">
+<meta name="color-scheme" content="dark light">
+<title>STSS STUDIO · ระบบจัดการหลังบ้าน</title>
+<script>
+/* ใช้ key เดียวกับเว็บหลัก (stss_theme) ธีมที่เลือกไว้จะตามกันทั้งสองหน้า */
+(function(){var r=document.documentElement,p="auto";try{p=localStorage.getItem("stss_theme")||"auto"}catch(e){}
+if(["auto","dark","light","pink"].indexOf(p)<0)p="auto";
+var t=p==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):p;r.dataset.theme=t;r.dataset.pref=p})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* ───────── ธีม (คัดลอกจาก index.html ของเว็บหลัก) ───────── */
+:root,[data-theme=dark]{color-scheme:dark;
+--bg:#04050a;--ac:#00f3ff;--ac-rgb:0,243,255;--ac2:#b84dff;--ac2-rgb:184,77,255;--tx:#e8f1ff;--mu:#8a99b3;
+--pn:rgba(13,17,30,.74);--pn-solid:#0d111e;--bd:rgba(0,243,255,.2);--fill:rgba(255,255,255,.05);--fill-bd:rgba(255,255,255,.15);
+--card:#0b0e18;--sunk:rgba(0,0,0,.4);--gl:1;--ok:#3dffa0;--ok-rgb:61,255,160;
+--warn:#ff4d7a;--warn-rgb:255,77,122;--warn2:#9b3dff;--note-tx:#ffc2d1;--amber:#f5b942;--amber-rgb:245,185,66;
+--pri:linear-gradient(135deg,#00f3ff,#3b82ff 60%,#b84dff);--pri-ink:#00121a;
+--grid:rgba(0,243,255,.05);--orb1:#00a8c8;--orb2:#6a22e8;--orb-op:.42;
+--ov:rgba(2,4,10,.86);--shadow:0 24px 60px rgba(0,0,0,.55);
+--st-a:#fff;--st-b:#7ee8ff;--st-c:#d9a7ff;--st-glow:rgba(255,255,255,.5)}
+[data-theme=light]{color-scheme:light;
+--bg:#f2f6ff;--ac:#007ea8;--ac-rgb:0,150,205;--ac2:#8b2fe0;--ac2-rgb:139,47,224;--tx:#0b1630;--mu:#4f5f7e;
+--pn:rgba(255,255,255,.86);--pn-solid:#fff;--bd:rgba(0,140,195,.38);--fill:rgba(12,28,70,.05);--fill-bd:rgba(12,28,70,.2);
+--card:#fff;--sunk:rgba(12,28,70,.06);--gl:.5;--ok:#008a5b;--ok-rgb:0,138,91;
+--warn:#d41c4b;--warn-rgb:212,28,75;--warn2:#7a2bd9;--note-tx:#8f0f33;--amber:#b87400;--amber-rgb:184,116,0;
+--pri:linear-gradient(135deg,#0086b3,#2f55f0 58%,#8b2fe0);--pri-ink:#fff;
+--grid:rgba(0,120,190,.09);--orb1:#86e4ff;--orb2:#cdb0ff;--orb-op:.7;
+--ov:rgba(236,241,255,.88);--shadow:0 18px 44px rgba(40,70,140,.2);
+--st-a:#0b1630;--st-b:#00a6d6;--st-c:#8b2fe0;--st-glow:rgba(0,150,205,.3)}
+[data-theme=pink]{color-scheme:dark;
+--bg:#0e0310;--ac:#ff4fb8;--ac-rgb:255,79,184;--ac2:#a855ff;--ac2-rgb:168,85,255;--tx:#ffeaf6;--mu:#cba0bd;
+--pn:rgba(32,9,36,.76);--pn-solid:#1c0820;--bd:rgba(255,79,184,.3);--fill:rgba(255,255,255,.05);--fill-bd:rgba(255,190,230,.2);
+--card:#190a1c;--sunk:rgba(0,0,0,.38);--gl:1;--ok:#5dffc0;--ok-rgb:93,255,192;
+--warn:#ffb14a;--warn-rgb:255,177,74;--warn2:#ff4fb8;--note-tx:#ffe0b3;--amber:#ffd24a;--amber-rgb:255,210,74;
+--pri:linear-gradient(135deg,#ff4fb8,#ff72d8 45%,#a855ff);--pri-ink:#1f0018;
+--grid:rgba(255,79,184,.06);--orb1:#ff2d95;--orb2:#7a2cff;--orb-op:.4;
+--ov:rgba(14,2,16,.88);--shadow:0 24px 60px rgba(0,0,0,.6);
+--st-a:#fff;--st-b:#ffc4ec;--st-c:#c9a0ff;--st-glow:rgba(255,160,230,.5)}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100dvh;color:var(--tx);font:400 16px/1.55 Kanit,system-ui,sans-serif;background:var(--bg);overflow-x:hidden;transition:background-color .35s,color .35s}
+[hidden]{display:none!important}
+button{font-family:inherit}
+svg.ic{width:1.1em;height:1.1em;vertical-align:-.18em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bg::before{content:"";position:absolute;inset:0;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:48px 48px;-webkit-mask-image:radial-gradient(ellipse at 50% 25%,#000 15%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 25%,#000 15%,transparent 75%)}
+.orb{position:absolute;border-radius:50%;opacity:var(--orb-op);animation:drift 18s ease-in-out infinite alternate;will-change:transform}
+.o1{width:640px;height:640px;background:radial-gradient(circle,var(--orb1) 0,transparent 66%);top:-260px;left:-240px}
+.o2{width:700px;height:700px;background:radial-gradient(circle,var(--orb2) 0,transparent 66%);bottom:-300px;right:-260px;animation-delay:-7s}
+@keyframes drift{to{transform:translate3d(60px,40px,0) scale(1.1)}}
+
+/* แถบบน */
+.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:var(--pn);border-bottom:1px solid var(--bd);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:baseline;gap:8px;font-weight:800;letter-spacing:.05em;font-size:1.25rem;margin-right:auto}
+.brand b{color:var(--ac);text-shadow:0 0 12px rgba(var(--ac-rgb),calc(.8*var(--gl)))}
+.brand i{font-style:normal;font-size:.7rem;font-weight:500;letter-spacing:.12em;padding:2px 9px;border-radius:99px;border:1px solid var(--warn);color:var(--warn)}
+.top .btn{flex:0 0 auto;padding:8px 14px;font-size:.9rem}
+.tm{position:relative;z-index:40}
+.tm-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--pn);border:1px solid var(--bd);color:var(--ac);cursor:pointer;box-shadow:0 0 16px rgba(var(--ac-rgb),calc(.28*var(--gl)));transition:.2s}
+.tm-btn:hover{transform:rotate(-12deg)}
+.tm-btn svg{width:20px;height:20px}
+.tm-pop{position:absolute;top:48px;right:0;display:none;grid-template-columns:repeat(4,58px);gap:4px;padding:10px;background:var(--pn-solid);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--shadow)}
+.tm.open .tm-pop{display:grid}
+.tm-opt{display:grid;justify-items:center;gap:5px;background:none;border:0;color:var(--mu);font-size:.72rem;cursor:pointer;padding:6px 0;border-radius:10px}
+.tm-opt:hover{background:var(--fill)}
+.sw{width:28px;height:28px;border-radius:50%;border:2px solid transparent;box-shadow:0 0 0 1px var(--fill-bd)}
+.sw.auto{background:linear-gradient(135deg,#0b1020 50%,#f4f7ff 50%)}.sw.dark{background:radial-gradient(circle at 35% 30%,#1c2540,#04050a);border-color:#00f3ff}
+.sw.light{background:#fff;border-color:#0090c0}.sw.pink{background:radial-gradient(circle at 35% 30%,#3a0d3c,#0e0310);border-color:#ff4fb8}
+.tm-opt[aria-checked=true]{color:var(--tx)}.tm-opt[aria-checked=true] .sw{box-shadow:0 0 0 2px var(--ac),0 0 14px rgba(var(--ac-rgb),.65)}
+
+main{width:min(1120px,100%);margin:0 auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom))}
+.panel{background:var(--pn);border:1px solid var(--bd);border-radius:22px;padding:20px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.06)}
+h2{margin:0 0 4px;font-size:1.3rem;font-weight:500}
+.mu{color:var(--mu)}.sm{font-size:.85rem}
+
+/* ปุ่ม */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:500 .95rem Kanit,sans-serif;color:var(--tx);background:var(--fill);border:1px solid var(--fill-bd);border-radius:12px;padding:10px 16px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s,filter .2s;text-decoration:none;white-space:nowrap;min-width:0}
+.btn:hover:not(:disabled){border-color:var(--ac);box-shadow:0 0 18px rgba(var(--ac-rgb),calc(.3*var(--gl)));transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:none}
+.btn.pri{background:var(--pri);color:var(--pri-ink);font-weight:700;border:0;box-shadow:0 0 22px rgba(var(--ac-rgb),calc(.4*var(--gl)))}
+.btn.warn{background:linear-gradient(135deg,var(--warn),var(--warn2) 80%);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3);font-weight:700;border:0;box-shadow:0 0 22px rgba(var(--warn-rgb),.4)}
+.btn.danger{color:var(--warn);background:rgba(var(--warn-rgb),.09);border-color:rgba(var(--warn-rgb),.5)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:focus-visible,.inp:focus-visible,.tm-btn:focus-visible,.tabs button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.spin{width:1.05em;height:1.05em;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:rot .7s linear infinite;flex:none;display:inline-block}
+@keyframes rot{to{transform:rotate(360deg)}}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.inp{width:100%;background:var(--sunk);border:1px solid var(--fill-bd);color:var(--tx);border-radius:12px;padding:11px 13px;font:inherit;font-size:16px}
+.inp::placeholder{color:var(--mu);opacity:.7}
+.inp:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(var(--ac-rgb),.18)}
+textarea.inp{min-height:150px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+
+/* ล็อกอิน */
+.login{width:min(420px,100%);margin:9vh auto 0;text-align:center}
+.login .lg{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;color:var(--ac);border:2px solid var(--ac);box-shadow:0 0 28px rgba(var(--ac-rgb),calc(.45*var(--gl)))}
+.login .lg svg{width:30px;height:30px}
+.login form{display:grid;gap:12px;margin-top:18px;text-align:left}
+.login label{color:var(--mu);font-size:.85rem}
+
+/* สถิติ */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stat{padding:14px 16px;border-radius:16px;background:var(--card);border:1px solid var(--fill-bd)}
+.stat b{display:block;font-size:1.7rem;font-weight:700;line-height:1.2;color:var(--ac);text-shadow:0 0 12px rgba(var(--ac-rgb),calc(.5*var(--gl)))}
+.stat span{color:var(--mu);font-size:.85rem}
+.stat small{display:block;color:var(--mu);font-size:.75rem;margin-top:2px}
+
+/* แท็บ */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:5px;margin:18px 0 14px;background:var(--sunk);border:1px solid var(--fill-bd);border-radius:14px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:1 0 auto;background:none;border:0;color:var(--mu);font:500 .95rem Kanit,sans-serif;padding:9px 16px;border-radius:10px;cursor:pointer;white-space:nowrap;transition:.2s}
+.tabs button:hover{color:var(--ac)}
+.tabs button[aria-selected=true]{background:rgba(var(--ac-rgb),.14);color:var(--ac);box-shadow:inset 0 0 0 1px var(--ac),0 0 16px rgba(var(--ac-rgb),calc(.25*var(--gl)))}
+.badge{display:inline-block;min-width:1.4em;margin-left:6px;padding:0 7px;border-radius:99px;background:var(--warn);color:#fff;font-size:.75rem;line-height:1.5}
+.seg{display:inline-flex;gap:4px;padding:4px;background:var(--sunk);border:1px solid var(--fill-bd);border-radius:12px;flex-wrap:wrap}
+.seg button{background:none;border:0;color:var(--mu);font:500 .88rem Kanit,sans-serif;padding:6px 12px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed=true]{background:rgba(var(--ac-rgb),.14);color:var(--ac);box-shadow:inset 0 0 0 1px var(--ac)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px}
+
+/* คำขอลบ */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.rq{display:flex;gap:14px;padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--fill-bd);transition:border-color .25s,box-shadow .25s}
+.rq:hover{border-color:var(--ac);box-shadow:0 0 22px rgba(var(--ac-rgb),calc(.22*var(--gl)))}
+.thumb{width:104px;aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:var(--sunk);border:1px solid var(--fill-bd);flex:none;display:grid;place-items:center}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.ph{display:grid;place-items:center;align-content:center;gap:6px;height:100%;padding:6px;text-align:center;color:var(--mu);font-size:.72rem;line-height:1.3}
+.ph svg{width:1.8em;height:1.8em}
+.rq-b{min-width:0;flex:1;display:flex;flex-direction:column;gap:6px}
+.rq-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rq-h b{letter-spacing:.04em}
+.rq dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:.88rem}
+.rq dt{color:var(--mu)}.rq dd{margin:0;word-break:break-word;overflow-wrap:anywhere}
+.rq-a{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+.rq-a .btn{padding:8px 12px;font-size:.85rem}
+.tag{display:inline-block;padding:1px 10px;border-radius:99px;font-size:.78rem;border:1px solid var(--fill-bd);color:var(--mu)}
+.tag.pending{color:var(--amber);border-color:rgba(var(--amber-rgb),.6);background:rgba(var(--amber-rgb),.1)}
+.tag.done{color:var(--ok);border-color:rgba(var(--ok-rgb),.6);background:rgba(var(--ok-rgb),.1)}
+.tag.rejected{color:var(--mu)}
+.tag.auto,.tag.manual,.tag.sheet{color:var(--ac);border-color:var(--bd)}
+.empty,.loading{padding:34px 10px;text-align:center;color:var(--mu)}
+.loading .spin{margin-right:8px;color:var(--ac)}
+.small-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.sc{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:14px;background:var(--card);border:1px solid var(--fill-bd)}
+.sc .thumb{width:100%}
+.sc code{font-size:.7rem;color:var(--mu);word-break:break-all}
+.sc .btn{padding:6px 10px;font-size:.8rem}
+
+/* ประวัติ */
+.chart{display:flex;align-items:flex-end;gap:6px;height:130px;padding:10px 8px 0;border-radius:14px;background:var(--sunk);border:1px solid var(--fill-bd);margin-bottom:14px;overflow-x:auto}
+.chart div{flex:1 0 26px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:.65rem;color:var(--mu);gap:3px}
+.chart i{display:block;width:100%;max-width:34px;border-radius:5px 5px 0 0;background:var(--pri);box-shadow:0 0 10px rgba(var(--ac-rgb),calc(.5*var(--gl)));min-height:2px}
+.tw{overflow:auto;max-height:520px;border:1px solid var(--fill-bd);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:8px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--fill-bd)}
+th{position:sticky;top:0;background:var(--pn-solid);color:var(--mu);font-weight:500;z-index:1}
+tr:hover td{background:var(--fill)}
+.cfg{display:grid;gap:10px}
+.cfg>div{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--fill-bd)}
+.cfg .dot{width:12px;height:12px;border-radius:50%;margin-top:.5em;flex:none;background:var(--warn);box-shadow:0 0 10px var(--warn)}
+.cfg .dot.on{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.cfg b{font-weight:500}.cfg code{background:var(--sunk);padding:1px 6px;border-radius:6px;font-size:.82rem}
+
+/* ป๊อปอัพ */
+.md{position:fixed;inset:0;z-index:100;background:var(--ov);display:none;align-items:center;justify-content:center;padding:16px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.md.on{display:flex}
+.md-box{position:relative;width:min(440px,100%);max-height:88dvh;overflow:auto;text-align:center;padding:26px 22px 20px;background:var(--pn-solid);border:1.5px solid var(--c,var(--bd));border-radius:22px;box-shadow:var(--shadow),0 0 60px rgba(var(--cr,var(--ac-rgb)),.25);animation:modalIn .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(14px)}to{opacity:1;transform:none}}
+.md[data-kind=ok]{--c:var(--ok);--cr:var(--ok-rgb)}.md[data-kind=err]{--c:var(--warn);--cr:var(--warn-rgb)}.md[data-kind=warn]{--c:var(--amber);--cr:var(--amber-rgb)}
+.md-ic{width:62px;height:62px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;color:var(--c,var(--ac));border:2px solid var(--c,var(--ac));box-shadow:0 0 26px rgba(var(--cr,var(--ac-rgb)),.5)}
+.md-ic svg{width:30px;height:30px}
+.md h3{margin:0 0 6px;font-size:1.2rem;font-weight:700;color:var(--c,var(--tx))}
+.md p{margin:0 0 16px;color:var(--mu);white-space:pre-line;word-break:break-word;overflow-wrap:anywhere;font-size:.95rem}
+.md-b{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.md-b .btn{flex:1 1 120px}
+.md-bar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--c);transform-origin:left;display:none;border-radius:0 0 22px 22px}
+.md.auto .md-bar{display:block;animation:shrink linear forwards}
+@keyframes shrink{to{transform:scaleX(0)}}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:110;padding:10px 18px;border-radius:99px;background:var(--pn-solid);border:1px solid var(--ac);color:var(--tx);box-shadow:var(--shadow),0 0 22px rgba(var(--ac-rgb),.35);opacity:0;pointer-events:none;transition:.25s;font-size:.9rem;max-width:92vw}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:560px){.cards{grid-template-columns:1fr}.rq{flex-direction:column}.thumb{width:100%;max-width:200px}.top .hide-sm{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ───────── เวอร์ชันใหม่: สีรุ้ง · ยืนยันใบหน้า · แดชบอร์ด · เครดิต ───────── */
+:root{--rb:linear-gradient(90deg,#ff3d6e,#ffb02e,#f6f23a,#3dff9e,#00d4ff,#6a5bff,#d44dff,#ff3d6e)}
+@keyframes rbMove{to{background-position:300% 0}}
+[data-theme=light]{--rb:linear-gradient(90deg,#d6174a,#d96d00,#a08700,#009a55,#0086b8,#4636d6,#a02bcf,#d6174a)}
+.top .me{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border-radius:99px;border:1px solid var(--bd);background:var(--fill);font-size:.85rem;max-width:min(260px,46vw)}
+.top .me i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:.8rem;color:#111;background:var(--rb);background-size:300% 100%;animation:rbMove 4s linear infinite;flex:none}
+.top .me span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.lg2{display:grid;gap:12px;margin-top:16px}
+.cam{position:relative;width:min(300px,78vw);aspect-ratio:3/4;margin:16px auto 8px;border-radius:26px;overflow:hidden;background:#000;border:2px solid var(--bd);box-shadow:0 0 34px rgba(var(--ac-rgb),calc(.35*var(--gl)))}
+.cam video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
+.cam-ring{position:absolute;left:50%;top:46%;width:66%;aspect-ratio:3/4;transform:translate(-50%,-50%);border-radius:50%;border:3px dashed rgba(255,255,255,.85);box-shadow:0 0 0 999px rgba(0,0,0,.45)}
+.cam.ok .cam-ring{border:3px solid var(--ok)}.cam.bad .cam-ring{border:3px solid var(--warn)}
+.cam.scan::after{content:"";position:absolute;left:12%;right:12%;height:3px;background:var(--rb);box-shadow:0 0 14px #fff;animation:scan 1.4s ease-in-out infinite alternate}
+@keyframes scan{from{top:20%}to{top:74%}}
+.cam-st{position:absolute;left:0;right:0;bottom:0;padding:12px 10px;text-align:center;font-size:.95rem;font-weight:500;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.78))}
+.cam-n{position:absolute;inset:0;display:grid;place-items:center;font-size:5rem;font-weight:800;color:#fff;text-shadow:0 0 28px rgba(0,0,0,.8);pointer-events:none}
+
+.dh{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px}
+.dh-l{display:flex;gap:14px;align-items:center;min-width:0}
+.dh-av{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1.4rem;color:#111;background:var(--rb);background-size:300% 100%;animation:rbMove 4s linear infinite;flex:none;box-shadow:0 0 22px rgba(var(--ac-rgb),calc(.4*var(--gl)))}
+.dh h2{overflow-wrap:anywhere}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:1px 10px;border-radius:99px;font-size:.78rem;border:1px solid var(--fill-bd);color:var(--mu)}
+.chip.ok{color:var(--ok);border-color:rgba(var(--ok-rgb),.6);background:rgba(var(--ok-rgb),.08)}
+.chip.warn{color:var(--amber);border-color:rgba(var(--amber-rgb),.6);background:rgba(var(--amber-rgb),.08)}
+.warnbar{margin:0 0 14px;padding:11px 14px;border-radius:14px;border:1px solid rgba(var(--amber-rgb),.6);background:rgba(var(--amber-rgb),.09);color:var(--amber);font-size:.9rem}
+.todo{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:16px 18px;margin-bottom:6px;border-radius:18px;background:var(--card);border:1px solid var(--fill-bd)}
+.todo.hot{border-color:rgba(var(--amber-rgb),.7);box-shadow:0 0 26px rgba(var(--amber-rgb),.18)}
+.todo b{font-size:1.15rem;font-weight:600}
+.sec{margin:18px 0 8px;font-size:.95rem;font-weight:500;color:var(--mu);letter-spacing:.02em}
+.health{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.dash .stats{grid-template-columns:repeat(auto-fit,minmax(148px,1fr))}
+.hl{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:var(--card);border:1px solid var(--fill-bd)}
+.hl .dot{width:11px;height:11px;border-radius:50%;margin-top:.5em;flex:none;background:var(--mu)}
+.hl .dot.g{background:var(--ok);box-shadow:0 0 9px var(--ok)}.hl .dot.y{background:var(--amber);box-shadow:0 0 9px var(--amber)}.hl .dot.r{background:var(--warn);box-shadow:0 0 9px var(--warn)}
+.hl b{font-weight:500;display:block;font-size:.92rem}.hl span{color:var(--mu);font-size:.8rem;display:block;overflow-wrap:anywhere}
+.guide{margin-top:16px;border:1px solid var(--fill-bd);border-radius:14px;background:var(--sunk);padding:2px 14px}
+.guide summary{cursor:pointer;padding:10px 0;font-weight:500;color:var(--ac)}
+.guide ol{margin:0 0 12px;padding-left:1.3em;color:var(--mu);font-size:.9rem}.guide li{margin:4px 0}.guide li b{color:var(--tx);font-weight:500}
+td.bad{color:var(--warn)}td.good{color:var(--ok)}
+
+/* ป๊อปอัพต้อนรับ (สีรุ้ง) */
+.wl{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:16px;background:var(--ov);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);overflow:hidden}
+.wl.on{display:flex}
+.wl-box{position:relative;isolation:isolate;width:min(430px,100%);text-align:center;padding:30px 22px 24px;background:var(--pn-solid);border-radius:28px;animation:wlIn .6s cubic-bezier(.2,1.5,.4,1)}
+.wl-box::before,.wl-box::after{content:"";position:absolute;inset:-3px;border-radius:30px;background:var(--rb);background-size:300% 100%;animation:rbMove 3s linear infinite;z-index:-2}
+.wl-box::after{filter:blur(26px);opacity:.55;inset:-6px}
+.wl-box>.wl-in{position:absolute;inset:0;border-radius:28px;background:var(--pn-solid);z-index:-1}
+@keyframes wlIn{from{opacity:0;transform:scale(.7) translateY(40px) rotate(-3deg)}to{opacity:1;transform:none}}
+.wl-ring{width:92px;height:92px;margin:0 auto 14px;padding:4px;border-radius:50%;background:var(--rb);background-size:300% 100%;animation:rbMove 2.4s linear infinite,pop 2.4s ease-in-out infinite}
+@keyframes pop{50%{transform:scale(1.06)}}
+.wl-av{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:var(--pn-solid);font-size:2.3rem;font-weight:800;color:var(--tx)}
+.wl-hi{margin:0;color:var(--mu);font-size:1rem;letter-spacing:.08em}
+.wl-name{margin:2px 0 10px;font-size:clamp(1.55rem,7vw,2.3rem);font-weight:800;line-height:1.25;overflow-wrap:anywhere;background:var(--rb);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:rbMove 2.6s linear infinite}
+.wl .chips{justify-content:center;margin:0 0 12px}
+.wl-msg{margin:0 0 18px;color:var(--mu);font-size:.95rem;white-space:pre-line}
+.wl-go{min-width:180px;font-size:1.05rem}
+.wl-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.wl-fx i{position:absolute;left:50%;top:50%;width:90px;height:3px;border-radius:3px;background:linear-gradient(90deg,transparent,hsl(var(--h),100%,62%));box-shadow:0 0 12px hsl(var(--h),100%,60%);opacity:0;transform:rotate(var(--r)) translateX(0);animation:fly 1.15s cubic-bezier(.1,.7,.2,1) var(--dl) forwards}
+@keyframes fly{0%{opacity:0;transform:rotate(var(--r)) translateX(30px) scaleX(.2)}15%{opacity:1}100%{opacity:0;transform:rotate(var(--r)) translateX(var(--d)) scaleX(1.2)}}
+
+/* เครดิต: ขวาล่าง เยื้องกลางไปทางขวา (กึ่งกลางครึ่งขวาของจอ) */
+.credit{position:fixed;left:75%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:20;padding:5px 16px;border-radius:99px;font-size:.78rem;color:var(--mu);background:var(--pn);border:1px solid var(--fill-bd);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis}
+.credit b{font-weight:600;background:var(--rb);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:rbMove 5s linear infinite}
+.credit a{color:inherit;text-decoration:none}.credit a:hover{color:var(--ac)}
+main{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+@media(max-width:760px){.credit{left:50%;font-size:.72rem}}
+
+/* STSS-CURSOR-GLOW: แสงวิ่งตามเมาส์ (เฉพาะอุปกรณ์ที่มีเมาส์; ปิดเองเมื่อผู้ใช้ตั้งค่าลดการเคลื่อนไหว) */
+.cg,.cg-d{position:fixed;left:0;top:0;pointer-events:none;opacity:0;transition:opacity .35s;will-change:transform}
+.cg{z-index:-1;width:560px;height:560px;margin:-280px 0 0 -280px;border-radius:50%;background:radial-gradient(circle,rgba(var(--ac-rgb),calc(.22*var(--gl))) 0,rgba(var(--ac2-rgb),calc(.10*var(--gl))) 38%,transparent 68%)}
+.cg-d{z-index:9998;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(var(--ac-rgb),.95) 35%,rgba(var(--ac2-rgb),0) 72%);box-shadow:0 0 calc(var(--s)*1.6) rgba(var(--ac-rgb),calc(.8*var(--gl)))}
+.cg-on .cg{opacity:1}.cg-on .cg-d{opacity:var(--o)}
+[data-theme=light] .cg-d{background:radial-gradient(circle,rgba(var(--ac-rgb),1) 0,rgba(var(--ac2-rgb),.55) 45%,rgba(var(--ac2-rgb),0) 75%)}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.cg,.cg-d{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-pal" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2 0-1.6-1.2-1.8-1.2-3 0-1 .8-1.7 1.9-1.7H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3z"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="10" cy="7" r="1" fill="currentColor"/><circle cx="15" cy="7" r="1" fill="currentColor"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-face" viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M9 10v1M15 10v1M9.5 15c1.5 1.3 3.5 1.3 5 0"/></symbol>
+    <symbol id="i-img" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M3 16l5-5 3 3 5-6 5 5"/></symbol>
+  </defs>
+</svg>
+<div class="bg" aria-hidden="true"><div class="orb o1"></div><div class="orb o2"></div></div>
+
+<header class="top">
+  <div class="brand"><b>STSS</b>STUDIO <i>ADMIN</i></div>
+  <div class="me" id="meChip" hidden><i id="meAv">A</i><span id="meName"></span></div>
+  <a class="btn" id="siteBtn" href="https://www.stss.space">← ไปเว็บหลัก</a>
+  <button class="btn" id="refBtn" type="button" hidden>รีเฟรช</button>
+  <button class="btn danger" id="outBtn" type="button" hidden>ออกจากระบบ</button>
+  <div class="tm" id="tm">
+    <button class="tm-btn" id="tmBtn" type="button" aria-label="เปลี่ยนธีม" aria-haspopup="true" aria-expanded="false"><svg class="ic" viewBox="0 0 24 24"><use href="#i-pal"/></svg></button>
+    <div class="tm-pop" role="radiogroup" aria-label="ธีม">
+      <button class="tm-opt" role="radio" data-t="auto" type="button"><span class="sw auto"></span>อัตโนมัติ</button>
+      <button class="tm-opt" role="radio" data-t="dark" type="button"><span class="sw dark"></span>มืด</button>
+      <button class="tm-opt" role="radio" data-t="light" type="button"><span class="sw light"></span>สว่าง</button>
+      <button class="tm-opt" role="radio" data-t="pink" type="button"><span class="sw pink"></span>ชมพู</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ล็อกอิน (ขั้น 1 รหัสผ่าน → ขั้น 2 สแกนใบหน้า ถ้าเปิดไว้) -->
+  <section class="panel login" id="login">
+    <div id="pwStep">
+      <div class="lg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-lock"/></svg></div>
+      <h2>เข้าสู่ระบบผู้ดูแล</h2>
+      <p class="mu sm" style="margin:0">เฉพาะผู้ดูแลระบบ STSS STUDIO · ทุกการกระทำถูกบันทึกลงชีต</p>
+      <form id="loginForm" autocomplete="off">
+        <div><label for="pw">รหัสผ่านผู้ดูแล</label><input class="inp" id="pw" type="password" autocomplete="current-password" placeholder="กรอกรหัสผ่าน"></div>
+        <button class="btn pri" id="loginBtn" type="submit">เข้าสู่ระบบ</button>
+      </form>
+    </div>
+    <div id="faceStep" hidden>
+      <div class="lg"><svg class="ic" viewBox="0 0 24 24"><use href="#i-face"/></svg></div>
+      <h2>ยืนยันตัวตนด้วยใบหน้า</h2>
+      <p class="mu sm" style="margin:0" id="faceHint">มองกล้องตรง ๆ ในที่สว่าง ระบบจะถ่ายภาพให้เองอัตโนมัติ</p>
+      <div class="cam" id="cam"><video id="vid" playsinline muted autoplay></video><div class="cam-ring"></div><div class="cam-n" id="camN"></div><div class="cam-st" id="camSt"></div></div>
+      <div class="row" style="justify-content:center"><button class="btn" id="faceBack" type="button">← กลับ</button><button class="btn pri" id="faceGo" type="button" disabled>สแกนอีกครั้ง</button></div>
+    </div>
+  </section>
+
+  <!-- แดชบอร์ด -->
+  <div id="app" hidden>
+    <section class="panel dash">
+      <div class="dh">
+        <div class="dh-l"><div class="dh-av" id="dAv">A</div><div style="min-width:0"><div class="mu sm">สวัสดี</div><h2 id="dName" style="margin:0"></h2><div class="chips" id="dChips"></div></div></div>
+        <button class="btn" id="reloadBtn" type="button">โหลดฐานข้อมูลใบหน้าใหม่</button>
+      </div>
+      <div class="warnbar" id="pwWarn" hidden>⚠ ตอนนี้เข้าด้วย<b>รหัสผ่านอย่างเดียว</b> — ยังไม่ได้ลงทะเบียนใบหน้าแอดมิน (ทำตาม README ข้อ 8 แล้วจะมีขั้นสแกนใบหน้าและชื่อของแต่ละคนในบันทึกลงชีต)</div>
+      <div class="todo" id="todo"></div>
+      <h3 class="sec">สุขภาพระบบ <span class="sm">(เขียว = ปกติ · เหลือง = ควรดู · แดง = ต้องแก้)</span></h3>
+      <div class="health" id="health"></div>
+      <h3 class="sec">ตัวเลขสำคัญ</h3>
+      <div class="stats" id="stats"></div>
+      <p class="mu sm" style="margin:10px 0 0" id="sysLine"></p>
+      <details class="guide"><summary>วิธีใช้หน้านี้ (อ่านแป๊บเดียว)</summary>
+        <ol>
+          <li><b>คำขอลบรูป</b> — คนที่เจอรูปตัวเองในเว็บหลักกดขอลบ จะมาขึ้นที่นี่ กด “อนุมัติ &amp; ลบรูป” = ย้ายไฟล์ใน Drive เข้าถังขยะ + รูปหายจากผลค้นหาทันที / กด “ปฏิเสธ” = รูปอยู่ตามเดิม</li>
+          <li><b>ประวัติการค้นหา</b> — ใครค้นหาตอนไหน ผลเป็นอย่างไร (ดึงจากชีต) ดาวน์โหลดเป็น CSV ได้</li>
+          <li><b>รูปที่ถูกซ่อน</b> — รูปที่ไม่โผล่ในการค้นหาแล้ว กด “คืนรูป” ถ้าซ่อนผิด</li>
+          <li><b>ซ่อน/ลบด้วย ID</b> — วางลิงก์หรือรหัสรูปจาก Drive เพื่อซ่อน/ลบเองโดยไม่ต้องรอคำขอ</li>
+          <li><b>บันทึกแอดมิน</b> — ทุกอย่างที่แอดมินกดจะถูกจดลงชีตอัตโนมัติ (ใคร · ทำอะไร · เมื่อไหร่ · IP) ไว้ตรวจสอบย้อนหลัง</li>
+        </ol>
+      </details>
+    </section>
+
+    <nav class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-tab="req" aria-selected="true">คำขอลบรูป<span class="badge" id="nReq" hidden></span></button>
+      <button role="tab" data-tab="his" aria-selected="false">ประวัติการค้นหา</button>
+      <button role="tab" data-tab="hid" aria-selected="false">รูปที่ถูกซ่อน</button>
+      <button role="tab" data-tab="mng" aria-selected="false">ซ่อน/ลบรูปด้วย ID</button>
+      <button role="tab" data-tab="aud" aria-selected="false">บันทึกแอดมิน</button>
+      <button role="tab" data-tab="cfg" aria-selected="false">ตั้งค่าระบบ</button>
+    </nav>
+
+    <section class="panel" id="p-req">
+      <div class="bar"><div><h2>คำขอลบรูปจากชีต</h2><p class="mu sm" style="margin:0">กด “อนุมัติ &amp; ลบรูป” ระบบจะย้ายไฟล์ใน Drive เข้าถังขยะและซ่อนจากผลค้นหาทันที</p></div>
+        <div class="seg" id="reqSeg" role="group" aria-label="กรองสถานะ"></div></div>
+      <div id="reqBox"></div>
+    </section>
+
+    <section class="panel" id="p-his" hidden>
+      <div class="bar"><div><h2>ประวัติการค้นหา</h2><p class="mu sm" style="margin:0" id="hisSub"></p></div>
+        <button class="btn" id="csvBtn" type="button">ดาวน์โหลด CSV</button></div>
+      <div id="hisBox"></div>
+    </section>
+
+    <section class="panel" id="p-hid" hidden>
+      <div class="bar"><div><h2>รูปที่ถูกซ่อนจากการค้นหา</h2><p class="mu sm" style="margin:0" id="hidSub"></p></div>
+        <button class="btn" id="txtBtn" type="button">ดาวน์โหลด removed.txt</button></div>
+      <div id="hidBox"></div>
+    </section>
+
+    <section class="panel" id="p-mng" hidden>
+      <h2>ซ่อน/ลบรูปด้วย ID หรือลิงก์ Drive</h2>
+      <p class="mu sm" style="margin:0 0 12px">วางได้หลายรูปพร้อมกัน (ขึ้นบรรทัดใหม่หรือเว้นวรรค) · “ซ่อน” = ไม่โผล่ในผลค้นหา แต่ไฟล์ยังอยู่ใน Drive · “ลบ” = ย้ายไฟล์เข้าถังขยะด้วย (ครั้งละไม่เกิน 20 รูป)</p>
+      <textarea class="inp" id="ids" placeholder="https://drive.google.com/file/d/xxxxxxxx/view&#10;1MJseYEb4UKKftIrKu64WmsPXnXqTJfr6"></textarea>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="hideBtn" type="button">ซ่อนจากการค้นหา</button>
+        <button class="btn warn" id="trashBtn" type="button">ลบจาก Drive + ซ่อน</button>
+      </div>
+    </section>
+
+    <section class="panel" id="p-aud" hidden>
+      <div class="bar"><div><h2>บันทึกการใช้งานแอดมิน</h2><p class="mu sm" style="margin:0" id="audSub">ทุกการเข้าสู่ระบบ/กดปุ่มของแอดมิน (จากชีตแท็บ AdminLog)</p></div></div>
+      <div id="audBox"></div>
+    </section>
+
+    <section class="panel" id="p-cfg" hidden>
+      <h2>ตั้งค่าระบบ</h2>
+      <p class="mu sm" style="margin:0 0 12px">สถานะ Environment Variable บน Render (ไม่แสดงค่าจริงเพื่อความปลอดภัย)</p>
+      <div class="cfg" id="cfgBox"></div>
+    </section>
+  </div>
+</main>
+
+<!-- ป๊อปอัพ (ผลสำเร็จ / ล้มเหลว / ยืนยัน) -->
+<div class="md" id="md" role="alertdialog" aria-modal="true" aria-labelledby="mdT" data-kind="info">
+  <div class="md-box">
+    <div class="md-ic" id="mdI"></div>
+    <h3 id="mdT"></h3>
+    <p id="mdM"></p>
+    <div class="md-b" id="mdB"></div>
+    <div class="md-bar" id="mdBar"></div>
+  </div>
+</div>
+<!-- ป๊อปอัพต้อนรับ -->
+<div class="wl" id="wl" role="dialog" aria-modal="true" aria-labelledby="wlN">
+  <div class="wl-fx" id="wlFx" aria-hidden="true"></div>
+  <div class="wl-box"><div class="wl-in"></div>
+    <div class="wl-ring"><div class="wl-av" id="wlAv">A</div></div>
+    <p class="wl-hi">ยินดีต้อนรับแอดมิน</p>
+    <h3 class="wl-name" id="wlN"></h3>
+    <div class="chips" id="wlC"></div>
+    <p class="wl-msg" id="wlM"></p>
+    <button class="btn pri wl-go" id="wlGo" type="button">เริ่มทำงาน</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<div class="credit">พัฒนาโดย <b>STSS STUDIO</b> · <a href="mailto:stss_studio@stss.ac.th">stss_studio@stss.ac.th</a></div>
+
+<script>
+/* หน้านี้เป็นเว็บแยก (อัปขึ้นโฮสต์ไหนก็ได้ เช่น GitHub Pages / Netlify / Cloudflare Pages) ไม่ได้ถูกเสิร์ฟจากเซิร์ฟเวอร์เว็บหลัก
+   API = ที่อยู่เซิร์ฟเวอร์หลังบ้านของเว็บหลัก (ตัวที่รัน main.py) — ถ้า www.stss.space ไม่ได้ชี้ไปที่เซิร์ฟเวอร์นั้น ให้เปลี่ยนเป็น URL ของ Render
+   ฝั่ง Render ควรตั้ง ALLOWED_ORIGINS ให้มีโดเมนของหน้านี้ (หลายโดเมนคั่นด้วย ,) */
+const API = "https://www.stss.space";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let TOK = "", ME = null;
+try { TOK = sessionStorage.getItem("stss_admin_tok") || ""; ME = JSON.parse(sessionStorage.getItem("stss_admin_me") || "null"); } catch {}
+const IC = {
+  ok: '<svg class="ic" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>',
+  err: '<svg class="ic" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  warn: '<svg class="ic" viewBox="0 0 24 24"><path d="M12 3l9.5 17H2.5L12 3z"/><path d="M12 10v4"/><path d="M12 17.2h.01"/></svg>',
+  info: '<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.8h.01"/></svg>'
+};
+const PH = '<span class="ph"><svg class="ic" viewBox="0 0 24 24"><use href="#i-img"/></svg><span>ไม่มีรูปแล้ว<br>หรือโหลดไม่ได้</span></span>';
+const OUT = { ok: "พบรูป", no_face: "ไม่พบใบหน้า", bad_image: "ไฟล์รูปเสีย", too_large: "ไฟล์ใหญ่เกิน", empty_db: "คลังว่าง" };
+
+/* ───────── ป๊อปอัพ / toast ───────── */
+let mdRes = null, mdTimer = null, tTimer = null;
+function closeModal(v) { clearTimeout(mdTimer); $("#md").classList.remove("on"); const r = mdRes; mdRes = null; lock(); if (r) r(v); }
+function showModal({ kind = "info", title = "", msg = "", buttons = [{ label: "ตกลง", cls: "pri", value: true }], auto = 0 }) {
+  clearTimeout(mdTimer); if (mdRes) { const r = mdRes; mdRes = null; r(undefined); }
+  return new Promise(res => {
+    mdRes = res;
+    const m = $("#md"); m.dataset.kind = kind; $("#mdI").innerHTML = IC[kind] || IC.info; $("#mdT").textContent = title; $("#mdM").textContent = msg; $("#mdM").hidden = !msg;
+    const B = $("#mdB"); B.innerHTML = "";
+    buttons.forEach(b => { const el = document.createElement("button"); el.type = "button"; el.className = "btn " + (b.cls || ""); el.textContent = b.label; el.onclick = () => closeModal(b.value); B.append(el); });
+    const bar = $("#mdBar"); bar.style.animation = "none"; void bar.offsetWidth; bar.style.animation = ""; bar.style.animationDuration = auto + "ms"; m.classList.toggle("auto", !!auto);
+    m.classList.add("on"); lock();
+    if (auto) mdTimer = setTimeout(() => closeModal(true), auto);
+    setTimeout(() => { const f = B.lastElementChild; if (f) f.focus(); }, 40);
+  });
+}
+const popup = (kind, title, msg) => showModal({ kind, title, msg, auto: kind === "ok" ? 2600 : 0 });
+const lock = () => { document.body.style.overflow = $("#md").classList.contains("on") || $("#wl").classList.contains("on") ? "hidden" : ""; };
+$("#md").onclick = e => { if (e.target.id === "md") closeModal(false); };
+function toast(t) { const e = $("#toast"); e.textContent = t; e.classList.add("on"); clearTimeout(tTimer); tTimer = setTimeout(() => e.classList.remove("on"), 1800); }
+
+/* ───────── เรียก API ───────── */
+async function api(path, opt = {}) {
+  const ac = new AbortController(), to = setTimeout(() => ac.abort(), 70000); let r;
+  const h = { ...(TOK ? { "X-Admin-Token": TOK } : {}), ...(opt.headers || {}), ...(opt.body ? { "Content-Type": "application/json" } : {}) };
+  try {
+    r = await fetch(API + path, { method: opt.method || "GET", signal: ac.signal, headers: h, body: opt.form || (opt.body ? JSON.stringify(opt.body) : undefined) });
+  } catch (e) { throw new Error(e && e.name === "AbortError" ? "เซิร์ฟเวอร์ตอบช้าเกินไป ลองใหม่อีกครั้ง" : "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง"); }
+  finally { clearTimeout(to); }
+  let d = {}; try { d = await r.json(); } catch {}
+  if (!r.ok) {
+    const msg = typeof d.detail === "string" ? d.detail : r.status === 422 ? "ข้อมูลที่ส่งไม่ถูกต้อง" : `เซิร์ฟเวอร์ขัดข้อง (${r.status})`;
+    const e = new Error(msg); e.status = r.status; throw e;
+  }
+  return d;
+}
+
+/* ห่อทุกปุ่ม: หมุนรอ → สำเร็จ/ล้มเหลวเด้งป๊อปอัพเสมอ
+   ok = ข้อความหัวข้อ หรือ ฟังก์ชัน(ผลลัพธ์) → [หัวข้อ, ข้อความ, ชนิด] */
+async function act(btn, fn, { ok, busy = "กำลังทำงาน…", fail = "ไม่สำเร็จ" } = {}) {
+  if (btn && btn.disabled) return;
+  const old = btn ? btn.innerHTML : ""; if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spin"></span>${esc(busy)}`; }
+  try {
+    const r = await fn();
+    if (ok) { const o = typeof ok === "function" ? ok(r) : [ok]; popup(o[2] || "ok", o[0], o[1] || ""); }
+    return r;
+  } catch (e) {
+    if (e.status === 401 && !$("#app").hidden) { toLogin(); popup("err", "เซสชันหมดอายุ", "กรุณาเข้าสู่ระบบใหม่"); return; }
+    popup("err", fail, e.message || "เกิดข้อผิดพลาด");
+  } finally { if (btn) { btn.disabled = false; btn.innerHTML = old; } }
+}
+
+/* ───────── ธีม (เหมือนเว็บหลัก) ───────── */
+const root = document.documentElement, mq = matchMedia("(prefers-color-scheme: light)");
+const TN = { auto: "อัตโนมัติ", dark: "มืด", light: "สว่าง", pink: "ชมพู" };
+function applyTheme(pref, save) {
+  const t = pref === "auto" ? (mq.matches ? "light" : "dark") : pref; root.dataset.theme = t; root.dataset.pref = pref;
+  if (save) { try { localStorage.setItem("stss_theme", pref); } catch {} }
+  document.querySelectorAll(".tm-opt").forEach(b => b.setAttribute("aria-checked", b.dataset.t === pref));
+  const m = document.querySelector("meta[name=theme-color]"); if (m) m.content = getComputedStyle(root).getPropertyValue("--bg").trim() || "#04050a";
+}
+applyTheme(root.dataset.pref || "auto");
+(mq.addEventListener ? mq.addEventListener.bind(mq, "change") : mq.addListener.bind(mq))(() => { if (root.dataset.pref === "auto") applyTheme("auto"); });
+const tmSet = o => { $("#tm").classList.toggle("open", o); $("#tmBtn").setAttribute("aria-expanded", o); };
+$("#tmBtn").onclick = e => { e.stopPropagation(); tmSet(!$("#tm").classList.contains("open")); };
+document.querySelectorAll(".tm-opt").forEach(b => b.onclick = () => { applyTheme(b.dataset.t, true); tmSet(false); toast("เปลี่ยนธีมเป็น “" + TN[b.dataset.t] + "” แล้ว"); });
+document.addEventListener("click", e => { if (!e.target.closest("#tm")) tmSet(false); });
+addEventListener("keydown", e => { if (e.key === "Escape") { if ($("#md").classList.contains("on")) closeModal(false); else tmSet(false); } });
+
+/* รูปที่โหลดไม่ขึ้น → ป้ายบอกชัด ๆ แทนช่องว่าง/เครื่องหมาย ? */
+document.addEventListener("error", e => { const t = e.target; if (t.tagName === "IMG" && t.dataset.fb) t.replaceWith(Object.assign(document.createElement("span"), { innerHTML: PH }).firstChild); }, true);
+const imgTag = u => u ? `<img src="${esc(/^\//.test(u) ? API + u : u)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-fb="1">` : PH;
+
+/* ───────── ล็อกอิน (ขั้น 1 รหัสผ่าน → ขั้น 2 สแกนใบหน้า ถ้าเปิดไว้) ───────── */
+let PRE = "", stream = null, camRun = 0;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const ini = n => (String(n || "A").trim()[0] || "A").toUpperCase();
+function stopCam() { camRun++; if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } const v = $("#vid"); if (v) v.srcObject = null; }
+function toLogin() {
+  stopCam(); TOK = ""; ME = null; PRE = "";
+  try { sessionStorage.removeItem("stss_admin_tok"); sessionStorage.removeItem("stss_admin_me"); } catch {}
+  $("#app").hidden = true; $("#login").hidden = false; $("#pwStep").hidden = false; $("#faceStep").hidden = true;
+  ["refBtn", "outBtn", "meChip"].forEach(i => $("#" + i).hidden = true); loaded = {}; REQ = []; reqOK = null; ST = null; H = { headers: [], rows: [] };
+  closeWelcome();
+}
+function toApp(stats) {
+  const m = stats.me; ME = { name: m.name, role: m.role, mode: m.mode };
+  $("#login").hidden = true; $("#app").hidden = false; ["refBtn", "outBtn", "meChip"].forEach(i => $("#" + i).hidden = false);
+  loaded = {}; renderStats(stats); setTab(curTab);
+}
+async function enter(d) {                       // d = { token, name, role, mode }
+  TOK = d.token;
+  try { sessionStorage.setItem("stss_admin_tok", TOK); } catch {}
+  const s = await api("/api/admin/stats"); toApp(s); return s;
+}
+async function afterLogin() { try { await TABP.req; } catch {} showWelcome(); }
+
+$("#loginForm").onsubmit = e => {
+  e.preventDefault(); const pw = $("#pw").value; if (!pw) return popup("warn", "ยังไม่ได้กรอกรหัสผ่าน", "กรุณากรอกรหัสผ่านผู้ดูแลก่อน");
+  act($("#loginBtn"), async () => {
+    const d = await api("/api/admin/login", { method: "POST", body: { password: pw } });
+    $("#pw").value = "";
+    if (d.step === "face") { PRE = d.pre; await openFace(); return d; }
+    await enter(d); await afterLogin(); return d;
+  }, { busy: "กำลังตรวจสอบ…", fail: "เข้าสู่ระบบไม่สำเร็จ" });
+};
+
+/* สแกนใบหน้า: เปิดกล้อง → นับถอยหลัง ~1.8 วิ → ถ่าย → ส่งตรวจ (ผ่านแล้วได้ชื่อผู้ดูแลตามที่ลงทะเบียนไว้) */
+async function openFace() {
+  $("#pwStep").hidden = true; $("#faceStep").hidden = false; toast("รหัสผ่านถูกต้อง — ต่อไปสแกนใบหน้า");
+  await startScan();
+}
+function camState(cls, txt) { $("#cam").className = "cam " + (cls || ""); $("#camSt").textContent = txt || ""; }
+async function startScan() {
+  const run = ++camRun; $("#faceGo").disabled = true; $("#camN").textContent = ""; camState("", "กำลังเปิดกล้อง…");
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw Object.assign(new Error("no media"), { name: "NoMedia" });
+    if (!stream) {
+      const st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+      if (run !== camRun) { st.getTracks().forEach(t => t.stop()); return; }
+      stream = st; const v = $("#vid"); v.srcObject = st; await v.play().catch(() => {});
+    }
+    for (let i = 0; i < 40 && !($("#vid").videoWidth > 0); i++) await sleep(100);
+    if (run !== camRun) return;
+    camState("scan", "เตรียมตัว… มองกล้องตรง ๆ");
+    for (const n of [2, 1]) { $("#camN").textContent = n; await sleep(900); if (run !== camRun) return; }
+    $("#camN").textContent = "";
+    await captureAndSend(run);
+  } catch (e) {
+    if (run !== camRun) return;
+    camState("bad", ""); $("#faceGo").disabled = false;
+    const n = e.name;
+    popup("err", "เปิดกล้องไม่ได้", n === "NotAllowedError" || n === "SecurityError" ? "ยังไม่ได้อนุญาตให้ใช้กล้อง — กดไอคอนกล้อง/แม่กุญแจที่แถบที่อยู่ เลือก “อนุญาต” แล้วกด “สแกนอีกครั้ง”"
+      : n === "NotFoundError" || n === "NoMedia" || n === "OverconstrainedError" ? "ไม่พบกล้อง หรือหน้านี้ไม่ได้เปิดผ่าน https (เบราว์เซอร์ให้ใช้กล้องเฉพาะ https)" : "เปิดกล้องไม่สำเร็จ: " + (e.message || n));
+  }
+}
+async function captureAndSend(run) {
+  const v = $("#vid"), w = Math.min(640, v.videoWidth), h = Math.round(w * v.videoHeight / v.videoWidth);
+  const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d").drawImage(v, 0, 0, w, h);
+  const blob = await new Promise(r => c.toBlob(r, "image/jpeg", 0.9));
+  camState("scan", "กำลังตรวจสอบใบหน้า…");
+  try {
+    const fd = new FormData(); fd.append("file", blob, "face.jpg");
+    const d = await api("/api/admin/face", { method: "POST", form: fd, headers: { "X-Pre-Token": PRE } });
+    if (run !== camRun) return;
+    if (d.success) { camState("ok", "ผ่าน ✓"); stopCam(); await enter(d); await afterLogin(); return; }
+    camState("bad", d.message || "ไม่ผ่าน"); $("#faceGo").disabled = false; popup("err", "สแกนใบหน้าไม่ผ่าน", d.message || "ลองใหม่อีกครั้ง");
+  } catch (e) {
+    if (run !== camRun) return;
+    $("#faceGo").disabled = false;
+    if (e.status === 401) { toLogin(); popup("err", "หมดเวลายืนยันรหัสผ่าน", "กรุณากรอกรหัสผ่านใหม่"); return; }
+    camState("bad", e.message); popup("err", "สแกนใบหน้าไม่สำเร็จ", e.message);
+  }
+}
+$("#faceGo").onclick = () => { if (!$("#faceGo").disabled) startScan(); };
+$("#faceBack").onclick = () => { stopCam(); PRE = ""; $("#faceStep").hidden = true; $("#pwStep").hidden = false; toast("กลับไปกรอกรหัสผ่านใหม่"); };
+
+$("#outBtn").onclick = async () => {
+  const go = await showModal({ kind: "warn", title: "ออกจากระบบ?", msg: "ต้องเข้าสู่ระบบใหม่เมื่อกลับเข้ามา", buttons: [{ label: "ยกเลิก", value: false }, { label: "ออกจากระบบ", cls: "warn", value: true }] });
+  if (!go) return;
+  try { await api("/api/admin/audit", { method: "POST", body: { action: "logout" } }); } catch {}
+  toLogin(); popup("ok", "ออกจากระบบแล้ว", "");
+};
+
+/* ป๊อปอัพต้อนรับสีรุ้ง */
+function closeWelcome() { $("#wl").classList.remove("on"); lock(); }
+function showWelcome() {
+  const me = ME || { name: "admin", mode: "" }, face = me.mode === "face";
+  $("#wlAv").textContent = ini(me.name); $("#wlN").textContent = me.name;
+  $("#wlC").innerHTML = (me.role ? `<span class="chip">${esc(me.role)}</span>` : "") + (face ? '<span class="chip ok">ยืนยันใบหน้าแล้ว</span>' : '<span class="chip warn">เข้าด้วยรหัสผ่านอย่างเดียว</span>');
+  const p = pendingCount();
+  $("#wlM").textContent = (p == null ? "ดึงคำขอลบรูปจากชีตไม่สำเร็จ — ดูรายละเอียดที่แท็บ “คำขอลบรูป”" : p > 0 ? `มีคำขอลบรูปรอพิจารณา ${p} รายการ` : "ตอนนี้ไม่มีคำขอลบรูปค้างอยู่ 🎉") + "\nทุกการกระทำของคุณถูกบันทึกลงชีตเพื่อความปลอดภัย";
+  const fx = $("#wlFx"); fx.innerHTML = "";
+  for (let i = 0; i < 44; i++) { const el = document.createElement("i"); el.style.cssText = `--r:${Math.round(i * 360 / 44 + Math.random() * 6)}deg;--d:${150 + Math.round(Math.random() * 300)}px;--h:${Math.round(i * 360 / 44)};--dl:${(Math.random() * 0.4).toFixed(2)}s`; fx.append(el); }
+  $("#wl").classList.add("on"); lock(); setTimeout(() => $("#wlGo").focus(), 60);
+}
+$("#wlGo").onclick = closeWelcome;
+
+/* ───────── ภาพรวม (แดชบอร์ด) ───────── */
+const fmt = n => Number(n || 0).toLocaleString();
+function upt(s) { const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return (d ? d + " วัน " : "") + (h ? h + " ชม. " : "") + m + " นาที"; }
+let ST = null, reqOK = null;                     // ST = ผลจาก /api/admin/stats ล่าสุด · reqOK = ดึงคำขอจากชีตสำเร็จไหม (null = ยังไม่ลอง)
+const pendingCount = () => reqOK ? REQ.filter(r => { const k = kind(r.status); return k === "pending" || k === "other"; }).length : null;
+function searchToday() {
+  const cT = H.headers.findIndex(h => /time|เวลา|timestamp|date|วัน/i.test(String(h))); if (cT < 0 || !H.rows.length) return null;
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Bangkok" });
+  return H.rows.filter(r => String(r[cT]).startsWith(today)).length;
+}
+function renderStats(s) {
+  ST = s; const h = s.hidden, face = ME && ME.mode === "face";
+  $("#meName").textContent = ME.name; $("#meAv").textContent = ini(ME.name); $("#dName").textContent = ME.name; $("#dAv").textContent = ini(ME.name);
+  const exp = new Date(s.me.expires_at * 1000).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+  $("#dChips").innerHTML = (ME.role ? `<span class="chip">${esc(ME.role)}</span>` : "") + (face ? '<span class="chip ok">ยืนยันใบหน้าแล้ว</span>' : '<span class="chip warn">รหัสผ่านอย่างเดียว</span>') + `<span class="chip">เซสชันหมดอายุ ${exp} น.</span>`;
+  $("#pwWarn").hidden = face;
+  $("#sysLine").textContent = `โมเดลค้นหา ${s.model} · เซิร์ฟเวอร์เปิดมาแล้ว ${upt(s.uptime_sec)} · ${s.ready ? "พร้อมใช้งาน" : "ยังไม่พร้อม (กำลังโหลด)"}`;
+  renderTiles(); renderTodo(); renderHealth(); renderCfg(s);
+}
+function renderTiles() {
+  if (!ST) return; const s = ST, h = s.hidden, p = pendingCount(), t = searchToday();
+  $("#stats").innerHTML = [
+    [fmt(s.photos), "รูปในคลัง", "รูปทั้งหมดที่ระบบรู้จัก"],
+    [fmt(s.searchable), "รูปที่ค้นเจอได้", `เจอใบหน้าในรูป · ไม่พบใบหน้า ${fmt(s.photos - s.searchable)} รูป`],
+    [fmt(s.faces), "ใบหน้าที่จำไว้", "1 รูปอาจมีหลายใบหน้า"],
+    [fmt(h.masked_in_index), "รูปที่ซ่อนอยู่", `ระบบตรวจเจอ ${h.auto} · ตามชีต ${h.sheet} · แอดมินสั่ง ${h.manual}`],
+    [p == null ? "—" : fmt(p), "คำขอลบที่รอพิจารณา", p == null ? "ยังดึงจากชีตไม่ได้" : "ดูแท็บคำขอลบรูป"],
+    [t == null ? "—" : fmt(t), "ค้นหาวันนี้", t == null ? "เปิดแท็บประวัติการค้นหาเพื่อดู" : "นับจากประวัติในชีต"]
+  ].map(([n, l, sm]) => `<div class="stat"><b>${n}</b><span>${l}</span>${sm ? `<small>${esc(sm)}</small>` : ""}</div>`).join("");
+}
+function renderTodo() {
+  const el = $("#todo"), p = pendingCount();
+  if (p == null) { el.className = "todo"; el.innerHTML = `<div><b>ยังดึงคำขอลบรูปจากชีตไม่ได้</b><div class="mu sm">${reqOK === false ? "ตรวจการเชื่อมต่อ Apps Script (ดูแท็บตั้งค่าระบบ)" : "กำลังโหลด…"}</div></div>${reqOK === false ? '<button class="btn" type="button" data-go="cfg">ดูตั้งค่าระบบ</button>' : ""}`; }
+  else if (p > 0) { el.className = "todo hot"; el.innerHTML = `<div><b>มีคำขอลบรูปรออยู่ ${p} รายการ</b><div class="mu sm">ตรวจสอบแล้วกดอนุมัติหรือปฏิเสธ</div></div><button class="btn warn" type="button" data-go="req">ไปจัดการคำขอ</button>`; }
+  else { el.className = "todo"; el.innerHTML = '<div><b>ไม่มีงานค้าง 🎉</b><div class="mu sm">ยังไม่มีคำขอลบรูปใหม่</div></div>'; }
+}
+$("#todo").onclick = e => { const b = e.target.closest("[data-go]"); if (b) { setTab(b.dataset.go); $("#tabs").scrollIntoView({ behavior: "smooth", block: "start" }); } };
+function renderHealth() {
+  if (!ST) return; const s = ST, c = s.config, f = s.face_login, a = s.audit;
+  const R = [
+    [s.ready ? "g" : "y", "ระบบค้นหาใบหน้า", s.ready ? `พร้อมใช้งาน (${s.model})` : "ยังไม่พร้อม — กำลังโหลดโมเดล/ฐานข้อมูล"],
+    [s.photos > 0 ? "g" : "r", "ฐานข้อมูลรูป", s.photos > 0 ? `${fmt(s.photos)} รูป · ${fmt(s.faces)} ใบหน้า` : "ว่างเปล่า — ยังไม่มีไฟล์ embeddings.npz"],
+    [!c.delete_sheet_url ? "r" : reqOK === true ? "g" : reqOK === false ? "r" : "y", "ชีต Google (Apps Script)", !c.delete_sheet_url ? "ยังไม่ได้ตั้ง DELETE_SHEET_URL บน Render" : reqOK === true ? "เชื่อมต่อได้ ดึงคำขอจากชีตสำเร็จ" : reqOK === false ? "ต่อไม่ได้ — ตรวจลิงก์ Apps Script และ ADMIN_KEY" : "ยังไม่ได้ทดสอบ"],
+    [f.broken ? "r" : f.required ? "g" : "y", "ยืนยันตัวตนแอดมินด้วยใบหน้า", f.broken ? "ไฟล์ใบหน้าแอดมินใช้ไม่ได้ — ล็อกอินถูกปิดจนกว่าจะแก้" : f.required ? `เปิดอยู่ · ลงทะเบียน ${f.admins} คน` : "ปิดอยู่ (เข้าด้วยรหัสผ่านอย่างเดียว) — ดู README ข้อ 8"],
+    [!c.delete_sheet_url ? "y" : a.failed > 0 ? "r" : "g", "บันทึกแอดมินลงชีต", !c.delete_sheet_url ? "ยังไม่ได้ต่อชีต — เก็บไว้ในเซิร์ฟเวอร์ชั่วคราว" : a.failed > 0 ? `ส่งไม่สำเร็จ ${a.failed} รายการ${a.last_error ? ": " + a.last_error : ""}` : `ส่งแล้ว ${fmt(a.sent)} รายการ${a.queued ? ` · รอส่ง ${a.queued}` : ""}`],
+    [c.notify ? "g" : "y", "แจ้งเตือนคำขอลบ/ค้นหา", c.notify ? "เปิดอยู่ (NOTIFY_WEBHOOK_URL)" : "ยังไม่ได้ตั้ง NOTIFY_WEBHOOK_URL (ไม่บังคับ)"]
+  ];
+  $("#health").innerHTML = R.map(([k, t, d]) => `<div class="hl"><span class="dot ${k}"></span><div><b>${esc(t)}</b><span>${esc(d)}</span></div></div>`).join("");
+}
+async function refreshStats() { renderStats(await api("/api/admin/stats")); }
+
+$("#reloadBtn").onclick = e => act(e.currentTarget, async () => { const r = await api("/api/admin/reload", { method: "POST" }); await refreshStats(); return r; },
+  { busy: "กำลังโหลด…", fail: "โหลดฐานข้อมูลไม่สำเร็จ", ok: r => ["โหลดฐานข้อมูลใหม่แล้ว", `${fmt(r.photos)} รูป · ${fmt(r.faces)} ใบหน้า · ซ่อนอยู่ ${fmt(r.hidden)} รูป`] });
+$("#refBtn").onclick = e => act(e.currentTarget, async () => { await refreshStats(); await loadTab(curTab); }, { busy: "กำลังรีเฟรช…", fail: "รีเฟรชไม่สำเร็จ", ok: "อัปเดตข้อมูลล่าสุดแล้ว" });
+
+/* ───────── แท็บ ───────── */
+let curTab = "req", loaded = {};
+const LOADERS = { req: () => loadReq(), his: () => loadHis(), hid: () => loadHid(), mng: async () => {}, aud: () => loadAud(), cfg: async () => {} }, TABP = {};
+function setTab(t) {
+  curTab = t;
+  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
+  Object.keys(LOADERS).forEach(x => $("#p-" + x).hidden = x !== t);
+  if (!loaded[t]) TABP[t] = loadTab(t).catch(() => {});
+}
+async function loadTab(t) {
+  const box = { req: "#reqBox", his: "#hisBox", hid: "#hidBox", aud: "#audBox" }[t];
+  if (box) $(box).innerHTML = '<div class="loading"><span class="spin"></span>กำลังดึงข้อมูล…</div>';
+  try { await LOADERS[t](); loaded[t] = true; }
+  catch (e) {
+    if (box) $(box).innerHTML = `<div class="empty">โหลดข้อมูลไม่สำเร็จ<br><span class="sm">${esc(e.message)}</span></div>`;
+    if (e.status === 401) { toLogin(); popup("err", "เซสชันหมดอายุ", "กรุณาเข้าสู่ระบบใหม่"); } else popup("err", "ดึงข้อมูลไม่สำเร็จ", e.message);
+    throw e;
+  }
+}
+$("#tabs").onclick = e => { const b = e.target.closest("button[data-tab]"); if (b) setTab(b.dataset.tab); };
+
+/* ───────── คำขอลบรูป ───────── */
+let REQ = [], reqF = "pending";
+const kind = s => { s = String(s || "").trim(); if (!s || s.startsWith("รอ")) return "pending"; if (/^(อนุมัติ|ลบแล้ว)/.test(s)) return "done"; if (s.startsWith("ปฏิเสธ")) return "rejected"; return "other"; };
+async function loadReq() { try { REQ = (await api("/api/admin/requests")).rows || []; reqOK = true; } catch (e) { reqOK = false; renderTodo(); renderHealth(); renderTiles(); throw e; } renderReq(); }
+function renderReq() {
+  const cnt = { pending: 0, done: 0, rejected: 0 }; REQ.forEach(r => { const k = kind(r.status); if (k in cnt) cnt[k]++; });
+  const nb = $("#nReq"); nb.hidden = !cnt.pending; nb.textContent = cnt.pending; renderTodo(); renderHealth(); renderTiles();
+  const F = [["pending", `รอพิจารณา (${cnt.pending})`], ["done", `อนุมัติแล้ว (${cnt.done})`], ["rejected", `ปฏิเสธ (${cnt.rejected})`], ["all", `ทั้งหมด (${REQ.length})`]];
+  $("#reqSeg").innerHTML = F.map(([k, l]) => `<button type="button" data-f="${k}" aria-pressed="${reqF === k}">${l}</button>`).join("");
+  const rows = REQ.filter(r => reqF === "all" || kind(r.status) === reqF || (reqF === "pending" && kind(r.status) === "other"));
+  $("#reqBox").innerHTML = rows.length ? `<div class="cards">${rows.map(r => {
+    const k = kind(r.status), pend = k === "pending" || k === "other";
+    return `<article class="rq" data-ref="${esc(r.ref)}"><div class="thumb">${imgTag(r.thumb)}</div><div class="rq-b">
+      <div class="rq-h"><b>${esc(r.ref)}</b><span class="tag ${k}">${esc(r.status || "รอพิจารณา")}</span>${r.hidden ? '<span class="tag manual">ซ่อนจากค้นหาแล้ว</span>' : ""}</div>
+      <div class="mu sm">${esc(r.time)}${r.face_match !== "" && r.face_match != null ? ` · ใบหน้าตรง ${esc(r.face_match)}%` : ""}</div>
+      <dl><dt>ชื่อ</dt><dd>${esc(r.name)}</dd><dt>ชั้น</dt><dd>${esc(r.grade)}</dd><dt>รหัส</dt><dd>${esc(r.student_id)}</dd><dt>เหตุผล</dt><dd>${esc(r.reason)}</dd></dl>
+      ${r.in_index === false && r.id ? '<div class="sm" style="color:var(--amber)">รูปนี้ไม่อยู่ในฐานข้อมูลค้นหาแล้ว</div>' : ""}
+      <div class="rq-a">${r.open ? `<a class="btn" href="${esc(r.open)}" target="_blank" rel="noopener">เปิดใน Drive</a>` : ""}
+      ${pend ? `<button class="btn warn" type="button" data-act="approve">อนุมัติ &amp; ลบรูป</button><button class="btn" type="button" data-act="reject">ปฏิเสธ</button>` : ""}</div>
+    </div></article>`;
+  }).join("")}</div>` : `<div class="empty">ไม่มีคำขอในหมวดนี้</div>`;
+}
+$("#reqSeg").onclick = e => { const b = e.target.closest("button[data-f]"); if (b) { reqF = b.dataset.f; renderReq(); } };
+$("#reqBox").onclick = async e => {
+  const btn = e.target.closest("button[data-act]"); if (!btn) return;
+  const ref = btn.closest(".rq").dataset.ref, decision = btn.dataset.act, r = REQ.find(x => x.ref === ref); if (!r) return;
+  const ap = decision === "approve";
+  const go = await showModal({ kind: ap ? "warn" : "info", title: ap ? "อนุมัติและลบรูปนี้?" : "ปฏิเสธคำขอนี้?",
+    msg: ap ? `คำขอ ${ref} (${r.name})\nไฟล์ใน Drive จะถูกย้ายเข้าถังขยะ และรูปจะหายจากผลค้นหาทันที` : `คำขอ ${ref} (${r.name})\nรูปจะยังอยู่ในระบบตามเดิม`,
+    buttons: [{ label: "ยกเลิก", value: false }, { label: ap ? "อนุมัติ & ลบ" : "ปฏิเสธ", cls: ap ? "warn" : "pri", value: true }] });
+  if (!go) return;
+  act(btn, async () => { const d = await api("/api/admin/decide", { method: "POST", body: { ref, decision } }); r.status = d.status || (ap ? "อนุมัติ" : "ปฏิเสธ"); if (ap) r.hidden = d.hidden; renderReq(); refreshStats().catch(() => {}); loaded.hid = false; return d; },
+    { busy: "กำลังดำเนินการ…", fail: ap ? "อนุมัติไม่สำเร็จ" : "ปฏิเสธไม่สำเร็จ",
+      ok: d => ap ? (d.trashed ? ["ลบรูปเรียบร้อย", `ย้ายไฟล์ใน Drive เข้าถังขยะแล้ว และซ่อนจากผลค้นหาแล้ว\nอย่าลืมตัดข้อมูลใบหน้าออกจากฐานข้อมูลในรอบถัดไป (ดูแท็บ “รูปที่ถูกซ่อน”)`] : ["อนุมัติแล้ว แต่ลบไฟล์ไม่สำเร็จ", (d.message || "") + (d.hidden ? "\nรูปถูกซ่อนจากผลค้นหาแล้ว" : ""), "warn"]) : ["ปฏิเสธคำขอแล้ว", `อัปเดตสถานะในชีตเป็น “${d.status || "ปฏิเสธ"}”`] });
+};
+
+/* ───────── ประวัติการค้นหา ───────── */
+let H = { headers: [], rows: [] }, hf = { q: "", out: "" };
+const colOf = re => H.headers.findIndex(h => re.test(String(h)));
+async function loadHis() { const d = await api("/api/admin/history?limit=1000"); H = { headers: d.headers || [], rows: d.rows || [] }; hf = { q: "", out: "" }; renderHis(); renderTiles(); }
+function renderHis() {
+  const cT = colOf(/time|เวลา|timestamp|date|วัน/i), cO = colOf(/outcome|ผล/i), cMs = colOf(/^(ms|duration)/i), cIp = colOf(/^ip$/i);
+  const rows = H.rows; $("#hisSub").textContent = rows.length ? `ล่าสุด ${fmt(rows.length)} รายการจากชีต` : "";
+  if (!H.headers.length || !rows.length) { $("#hisBox").innerHTML = '<div class="empty">ยังไม่มีประวัติการค้นหาในชีต</div>'; return; }
+  const okN = cO >= 0 ? rows.filter(r => r[cO] === "ok").length : 0, nf = cO >= 0 ? rows.filter(r => r[cO] === "no_face").length : 0;
+  const msv = cMs >= 0 ? rows.map(r => +r[cMs]).filter(x => x > 0) : [], avg = msv.length ? Math.round(msv.reduce((a, b) => a + b, 0) / msv.length) : 0;
+  const ips = cIp >= 0 ? new Set(rows.map(r => r[cIp])).size : 0;
+  let chart = "";
+  if (cT >= 0) {
+    const by = {}; rows.forEach(r => { const m = String(r[cT]).match(/^(\d{4}-\d{2}-\d{2})/); if (m) by[m[1]] = (by[m[1]] || 0) + 1; });
+    const days = Object.keys(by).sort().slice(-14), mx = Math.max(1, ...days.map(d => by[d]));
+    if (days.length) chart = `<div class="chart" aria-label="จำนวนการค้นหาต่อวัน">${days.map(d => `<div title="${d}: ${by[d]} ครั้ง"><span>${by[d]}</span><i style="height:${Math.max(3, by[d] / mx * 78)}px"></i><span>${d.slice(5)}</span></div>`).join("")}</div>`;
+  }
+  const outs = cO >= 0 ? [...new Set(rows.map(r => r[cO]))].filter(Boolean) : [];
+  const q = hf.q.trim().toLowerCase(), view = rows.filter(r => (!hf.out || r[cO] === hf.out) && (!q || r.some(c => String(c).toLowerCase().includes(q))));
+  $("#hisBox").innerHTML = `<div class="stats" style="margin-bottom:14px">
+      <div class="stat"><b>${fmt(rows.length)}</b><span>ครั้งที่แสดง</span></div>
+      ${cO >= 0 ? `<div class="stat"><b>${rows.length ? Math.round(okN / rows.length * 100) : 0}%</b><span>ค้นเจอรูป</span><small>ไม่พบใบหน้า ${fmt(nf)} ครั้ง</small></div>` : ""}
+      ${avg ? `<div class="stat"><b>${(avg / 1000).toFixed(1)} วิ</b><span>เวลาเฉลี่ย</span></div>` : ""}
+      ${ips ? `<div class="stat"><b>${fmt(ips)}</b><span>IP ที่ต่างกัน</span></div>` : ""}</div>
+    ${chart}
+    <div class="row" style="margin-bottom:12px"><input class="inp" id="hq" style="flex:1 1 220px;width:auto" placeholder="ค้นหาในตาราง (IP, ผลลัพธ์, เวลา …)" value="${esc(hf.q)}">
+      ${outs.length ? `<select class="inp" id="ho" style="flex:0 0 190px;width:auto"><option value="">ทุกผลลัพธ์</option>${outs.map(o => `<option value="${esc(o)}"${hf.out === o ? " selected" : ""}>${esc(OUT[o] || o)}</option>`).join("")}</select>` : ""}</div>
+    <div class="tw"><table><thead><tr>${H.headers.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${view.slice(0, 300).map(r => `<tr>${r.map((c, i) => `<td>${esc(i === cO ? (OUT[c] || c) : c)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${H.headers.length}" class="mu">ไม่พบรายการที่ตรงกับตัวกรอง</td></tr>`}</tbody></table></div>
+    ${view.length > 300 ? `<p class="mu sm">แสดง 300 จาก ${fmt(view.length)} รายการ — ดาวน์โหลด CSV เพื่อดูทั้งหมด</p>` : ""}`;
+  const hq = $("#hq"); hq.oninput = () => { hf.q = hq.value; const p = hq.selectionStart; renderHis(); const n = $("#hq"); n.focus(); n.setSelectionRange(p, p); };
+  const ho = $("#ho"); if (ho) ho.onchange = () => { hf.out = ho.value; renderHis(); };
+}
+$("#csvBtn").onclick = e => act(e.currentTarget, async () => {
+  if (!H.rows.length) throw new Error("ยังไม่มีข้อมูลให้ดาวน์โหลด — เปิดแท็บประวัติการค้นหาให้โหลดก่อน");
+  const q = c => { c = String(c ?? ""); if (/^[=+\-@]/.test(c)) c = "'" + c; return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; };   // กันสูตร Excel แทรก
+  const csv = "﻿" + [H.headers, ...H.rows].map(r => r.map(q).join(",")).join("\r\n");
+  save(csv, `stss-search-history-${new Date().toISOString().slice(0, 10)}.csv`, "text/csv;charset=utf-8"); api("/api/admin/audit", { method: "POST", body: { action: "export_csv" } }).catch(() => {}); return H.rows.length;
+}, { busy: "กำลังสร้างไฟล์…", fail: "ดาวน์โหลดไม่สำเร็จ", ok: n => ["ดาวน์โหลด CSV แล้ว", `${fmt(n)} รายการ`] });
+function save(text, name, type) { const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([text], { type })), download: name }); document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+
+/* ───────── รูปที่ถูกซ่อน ───────── */
+let HID = [];
+const SRC = { manual: "แอดมินสั่ง", auto: "ระบบตรวจเจอ", sheet: "สถานะในชีต" };
+async function loadHid() { const d = await api("/api/admin/hidden"); HID = d.rows || []; $("#hidSub").textContent = `ซ่อนอยู่ ${fmt(d.total)} รายการ`; renderHid(); }
+function renderHid() {
+  $("#hidBox").innerHTML = HID.length ? `<div class="small-cards">${HID.map(r => `<div class="sc" data-id="${esc(r.id)}"><div class="thumb">${imgTag(r.thumb)}</div>
+    <span class="tag ${r.source}">${SRC[r.source] || r.source}</span><code>${esc(r.id)}</code>
+    <a class="btn" href="${esc(r.open)}" target="_blank" rel="noopener">เปิดใน Drive</a>${r.source !== "sheet" ? '<button class="btn" type="button" data-act="unhide">คืนรูปให้ค้นเจอ</button>' : ""}</div>`).join("")}</div>
+    <p class="mu sm" style="margin-top:14px">การซ่อนไม่ได้ลบข้อมูลใบหน้า (ข้อมูลชีวมิติ) ออกจากฐานข้อมูล — ดาวน์โหลด removed.txt แล้วรัน <code>python build_index.py sync … --exclude-file removed.txt</code> เพื่อลบจริง จากนั้นอัปโหลดไฟล์ใหม่แล้วกด “โหลดฐานข้อมูลใบหน้าใหม่”</p>` : '<div class="empty">ยังไม่มีรูปที่ถูกซ่อน</div>';
+}
+$("#hidBox").onclick = e => {
+  const btn = e.target.closest("button[data-act=unhide]"); if (!btn) return; const id = btn.closest(".sc").dataset.id;
+  act(btn, async () => { const d = await api("/api/admin/unhide", { method: "POST", body: { id } }); await loadHid(); refreshStats().catch(() => {}); return d; },
+    { busy: "กำลังคืนรูป…", fail: "คืนรูปไม่สำเร็จ", ok: d => d.ok ? ["คืนรูปแล้ว", "รูปนี้จะกลับมาอยู่ในผลค้นหา"] : ["ยังคืนรูปไม่ได้", d.message, "warn"] });
+};
+$("#txtBtn").onclick = e => act(e.currentTarget, async () => {
+  if (!HID.length) throw new Error("ยังไม่มีรูปที่ถูกซ่อน");
+  save([...new Set(HID.map(r => r.id))].join("\n") + "\n", "removed.txt", "text/plain;charset=utf-8"); api("/api/admin/audit", { method: "POST", body: { action: "export_removed" } }).catch(() => {}); return HID.length;
+}, { busy: "กำลังสร้างไฟล์…", fail: "ดาวน์โหลดไม่สำเร็จ", ok: n => ["ดาวน์โหลด removed.txt แล้ว", `${fmt(n)} รายการ — ใช้กับ build_index.py --exclude-file`] });
+
+/* ───────── ซ่อน/ลบด้วย ID ───────── */
+async function hideIds(btn, trash) {
+  const ids = $("#ids").value.trim(); if (!ids) return popup("warn", "ยังไม่ได้ใส่รูป", "วาง ID หรือลิงก์ Drive อย่างน้อย 1 รายการ");
+  if (trash) { const go = await showModal({ kind: "warn", title: "ลบรูปจาก Drive และซ่อนจากการค้นหา?", msg: "ไฟล์จะถูกย้ายเข้าถังขยะใน Drive (กู้คืนได้ 30 วัน)", buttons: [{ label: "ยกเลิก", value: false }, { label: "ลบ", cls: "warn", value: true }] }); if (!go) return; }
+  act(btn, async () => { const d = await api("/api/admin/hide", { method: "POST", body: { ids: [ids], trash } }); loaded.hid = false; refreshStats().catch(() => {}); return d; },
+    { busy: trash ? "กำลังลบ…" : "กำลังซ่อน…", fail: trash ? "ลบไม่สำเร็จ" : "ซ่อนไม่สำเร็จ",
+      ok: d => {
+        const lines = [`ซ่อนจากการค้นหา ${d.hidden} รูป`]; if (trash) lines.push(`ย้ายเข้าถังขยะ ${d.trashed.length} รูป`);
+        if (d.trash_failed.length) lines.push(`ลบไฟล์ไม่สำเร็จ ${d.trash_failed.length} รูป: ${d.trash_failed[0].error}`);
+        if (d.unknown.length) lines.push(`ไม่พบในฐานข้อมูล ${d.unknown.length} รายการ (ข้ามไป)`);
+        return [d.hidden ? (d.trash_failed.length || d.unknown.length ? "ดำเนินการแล้วบางส่วน" : "ดำเนินการเรียบร้อย") : "ไม่มีรูปที่ตรงกับฐานข้อมูล", lines.join("\n"), d.hidden && !d.trash_failed.length && !d.unknown.length ? "ok" : "warn"];
+      } });
+}
+$("#hideBtn").onclick = e => hideIds(e.currentTarget, false);
+$("#trashBtn").onclick = e => hideIds(e.currentTarget, true);
+
+/* ───────── บันทึกแอดมิน ───────── */
+let AUD = { headers: [], rows: [], source: "", note: "" }, af = "";
+async function loadAud() { const d = await api("/api/admin/auditlog"); AUD = { headers: d.headers || [], rows: d.rows || [], source: d.source, note: d.note || "" }; af = ""; renderAud(); }
+function renderAud() {
+  const A = AUD;
+  $("#audSub").textContent = A.source === "memory" ? "⚠ อ่านจากชีตไม่ได้ — แสดงเฉพาะที่เก็บในเซิร์ฟเวอร์ตั้งแต่เปิดล่าสุด" : `ล่าสุด ${fmt(A.rows.length)} รายการจากชีต (แท็บ AdminLog)`;
+  if (!A.headers.length || !A.rows.length) { $("#audBox").innerHTML = '<div class="empty">ยังไม่มีบันทึก</div>'; return; }
+  const cR = A.headers.findIndex(h => /ผล|result/i.test(String(h))), q = af.trim().toLowerCase();
+  const view = A.rows.filter(r => !q || r.some(c => String(c).toLowerCase().includes(q)));
+  $("#audBox").innerHTML = (A.source === "memory" ? `<div class="warnbar">${esc(A.note || "อ่านชีตไม่ได้")}</div>` : "") +
+    `<div class="row" style="margin-bottom:12px"><input class="inp" id="aq" style="flex:1 1 220px;width:auto" placeholder="ค้นหา (ชื่อแอดมิน, การกระทำ, IP …)" value="${esc(af)}"></div>
+    <div class="tw"><table><thead><tr>${A.headers.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${view.slice(0, 300).map(r => `<tr>${r.map((c, i) => `<td class="${i === cR ? (String(c).includes("ล้มเหลว") ? "bad" : "good") : ""}">${esc(c)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${A.headers.length}" class="mu">ไม่พบรายการ</td></tr>`}</tbody></table></div>
+    ${view.length > 300 ? `<p class="mu sm">แสดง 300 จาก ${fmt(view.length)} รายการ</p>` : ""}`;
+  const aq = $("#aq"); aq.oninput = () => { af = aq.value; const p = aq.selectionStart; renderAud(); const n = $("#aq"); n.focus(); n.setSelectionRange(p, p); };
+}
+
+/* ───────── ตั้งค่าระบบ ───────── */
+function renderCfg(s) {
+  const c = s.config, f = s.face_login;
+  const R = [
+    [true, "ADMIN_KEY", "รหัสผ่านหน้านี้ + กุญแจที่ใช้คุยกับ Apps Script (ตั้งไว้แล้ว เพราะคุณเข้าสู่ระบบได้)"],
+    [f.admins > 0 && !f.broken, "ใบหน้าแอดมิน (admins.json / ADMIN_FACES)", f.broken ? "ไฟล์ใช้ไม่ได้ — ล็อกอินถูกปิดอยู่" : f.admins ? `ลงทะเบียนแล้ว ${f.admins} คน` : "ยังไม่มีใครลงทะเบียน — ใช้ enroll_admin.py (README ข้อ 8)"],
+    [c.token_secret, "TOKEN_SECRET", "ข้อความสุ่มยาว ๆ — ถ้าไม่ตั้ง การเข้าสู่ระบบจะหลุดทุกครั้งที่เซิร์ฟเวอร์รีสตาร์ท"],
+    [c.delete_sheet_url, "DELETE_SHEET_URL / SHEET_LOG_URL", "ลิงก์ Apps Script Web App — รับคำขอลบ ประวัติค้นหา บันทึกแอดมิน และสั่งลบไฟล์"],
+    [c.removed_url, "REMOVED_URL", "ลิงก์ Apps Script ตามด้วย ?action=removed — ให้รูปที่อนุมัติลบแล้วยังถูกซ่อนต่อหลังเซิร์ฟเวอร์รีสตาร์ท"],
+    [c.emb_url, "EMB_URL", "ลิงก์ไฟล์ embeddings.npz — ถ้าไม่ตั้ง ต้องมีไฟล์อยู่ในโปรเจกต์ (ฐานข้อมูลใหม่ที่โหลดผ่านหน้านี้จะไม่คงอยู่หลังรีสตาร์ท)"],
+    [c.notify, "NOTIFY_WEBHOOK_URL", "ส่งแจ้งเตือนเข้า Discord/Slack เมื่อมีคำขอลบรูป (พร้อมรหัสรูปและลิงก์ Drive) — ไม่บังคับ"],
+    [c.autohide, "AUTOHIDE_BROKEN", "ซ่อนรูปที่เปิดจาก Drive ไม่ได้อัตโนมัติ (ตั้งเป็น 0 เพื่อปิด)"],
+    [!c.keepalive, "KEEPALIVE", c.keepalive ? "เปิดอยู่ — เซิร์ฟเวอร์ปลุกตัวเองทุก 4 นาที (กินชั่วโมงฟรีของ Render ตลอด) ถ้าใช้บอทภายนอกแล้วตั้งเป็น 0" : "ปิดอยู่ ✓ — ใช้บอทภายนอกยิง /healthz ทุก 10 นาทีแทน (ต้องไม่เกิน 14 นาที)", "ตั้งค่าถูกต้อง", "ควรปิด (=0)"]
+  ];
+  $("#cfgBox").innerHTML = R.map(([on, k, h, yes, no]) => `<div><span class="dot ${on ? "on" : ""}"></span><div><b><code>${esc(k)}</code> ${on ? (yes || "ตั้งแล้ว") : (no || "ยังไม่ได้ตั้ง")}</b><div class="mu sm">${esc(h)}</div></div></div>`).join("");
+}
+
+/* ───────── เริ่มต้น ───────── */
+$("#siteBtn").onclick = () => toast("กำลังไปเว็บหลัก…");
+addEventListener("keydown", e => { if (e.key === "Escape" && $("#wl").classList.contains("on")) closeWelcome(); });
+if (TOK) api("/api/admin/stats").then(toApp).catch(() => toLogin());
+
+
+/* STSS-CURSOR-GLOW */
+(function () {
+  if (!matchMedia("(hover:hover) and (pointer:fine)").matches || matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  var R = document.documentElement, g = document.createElement("div"), N = 7, dots = [];
+  g.className = "cg"; g.setAttribute("aria-hidden", "true"); document.body.appendChild(g);
+  for (var i = 0; i < N; i++) {
+    var el = document.createElement("i"); el.className = "cg-d"; el.setAttribute("aria-hidden", "true");
+    el.style.setProperty("--s", (15 - i * 1.6) + "px"); el.style.setProperty("--o", (0.9 - i * 0.11).toFixed(2));
+    document.body.appendChild(el); dots.push({ el: el, x: 0, y: 0 });
+  }
+  var tx = 0, ty = 0, gx = 0, gy = 0, raf = 0, on = false;
+  function tick() {
+    gx += (tx - gx) * 0.12; gy += (ty - gy) * 0.12; g.style.transform = "translate3d(" + gx + "px," + gy + "px,0)";
+    var px = tx, py = ty, far = Math.abs(tx - gx) + Math.abs(ty - gy);
+    for (var i = 0; i < N; i++) {
+      var d = dots[i], k = 0.42 - i * 0.04; d.x += (px - d.x) * k; d.y += (py - d.y) * k;
+      d.el.style.transform = "translate3d(" + d.x + "px," + d.y + "px,0)"; px = d.x; py = d.y; far += Math.abs(tx - d.x) + Math.abs(ty - d.y);
+    }
+    raf = far > 0.6 ? requestAnimationFrame(tick) : 0;          // เมาส์หยุดนิ่ง = หยุดคำนวณ ไม่กินแบต
+  }
+  addEventListener("pointermove", function (e) {
+    if (e.pointerType === "touch") return;
+    tx = e.clientX; ty = e.clientY;
+    if (!on) { on = true; gx = tx; gy = ty; dots.forEach(function (d) { d.x = tx; d.y = ty; }); R.classList.add("cg-on"); }
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+  R.addEventListener("mouseleave", function () { on = false; R.classList.remove("cg-on"); });
+  document.addEventListener("visibilitychange", function () { if (document.hidden) { on = false; R.classList.remove("cg-on"); } });
+})();
+</script>
+</body>
+</html>

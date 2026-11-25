@@ -161,7 +161,7 @@ main{width:min(780px,100%);margin:0 auto;padding:22px 16px calc(32px + env(safe-
 .card:hover{transform:translateY(-4px);border-color:var(--ac);box-shadow:0 0 26px rgba(var(--ac-rgb),calc(.32*var(--gl)))}
 .card img{width:100%;height:100%;object-fit:cover;display:block;animation:fade .35s ease-out}
 @keyframes fade{from{opacity:0}}
-.ph{display:grid;place-items:center;height:100%;color:var(--mu)}
+.ph{display:grid;place-items:center;align-content:center;gap:6px;height:100%;padding:8px;text-align:center;color:var(--mu);font-size:.78rem;line-height:1.3}
 .ph svg{width:2em;height:2em}
 .pct{position:absolute;left:8px;bottom:8px;padding:2px 10px;border-radius:99px;background:rgba(0,0,0,.74);border:1px solid var(--pct);color:var(--pct);font-size:.82rem;font-weight:500;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .sk{aspect-ratio:4/5;border-radius:16px;background:linear-gradient(100deg,var(--sunk) 30%,rgba(var(--ac-rgb),.14) 50%,var(--sunk) 70%) 0 0/300% 100%;animation:sk 1.3s linear infinite}
@@ -285,6 +285,13 @@ footer a{color:var(--ac)}
 }
 @media(max-height:560px) and (orientation:landscape){.lb{padding-top:calc(10px + env(safe-area-inset-top))}.x{top:8px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* STSS-CURSOR-GLOW: แสงวิ่งตามเมาส์ (เฉพาะอุปกรณ์ที่มีเมาส์; ปิดเองเมื่อผู้ใช้ตั้งค่าลดการเคลื่อนไหว) */
+.cg,.cg-d{position:fixed;left:0;top:0;pointer-events:none;opacity:0;transition:opacity .35s;will-change:transform}
+.cg{z-index:-1;width:560px;height:560px;margin:-280px 0 0 -280px;border-radius:50%;background:radial-gradient(circle,rgba(var(--ac-rgb),calc(.22*var(--gl))) 0,rgba(var(--ac2-rgb),calc(.10*var(--gl))) 38%,transparent 68%)}
+.cg-d{z-index:9998;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(var(--ac-rgb),.95) 35%,rgba(var(--ac2-rgb),0) 72%);box-shadow:0 0 calc(var(--s)*1.6) rgba(var(--ac-rgb),calc(.8*var(--gl)))}
+.cg-on .cg{opacity:1}.cg-on .cg-d{opacity:var(--o)}
+[data-theme=light] .cg-d{background:radial-gradient(circle,rgba(var(--ac-rgb),1) 0,rgba(var(--ac2-rgb),.55) 45%,rgba(var(--ac2-rgb),0) 75%)}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.cg,.cg-d{display:none}}
 </style>
 </head>
 <body>
@@ -374,8 +381,7 @@ footer a{color:var(--ac)}
   </div>
   <p>พัฒนาโดย <b>STSS</b> STUDIO</p>
   <p><button class="tnc-link" id="tncOpen" type="button">ข้อกำหนดและเงื่อนไขการใช้งาน</button></p>
-  <p>พบปัญหาการใช้งาน แจ้งได้ที่ <a href="mailto:stss_studio@stss.ac.th">stss_studio@stss.ac.th</a></p>
-</footer>
+  <p>พบปัญหาการใช้งาน แจ้งได้ที่ <a href="mailto:stss_studio@stss.ac.th">stss_studio@stss.ac.th</a></p></footer>
 
 <!-- ข้อกำหนดและเงื่อนไข -->
 <div class="modal" id="tnc" role="dialog" aria-modal="true" aria-labelledby="tncTitle">
@@ -520,7 +526,7 @@ const API = "";
 const $ = s => document.querySelector(s);
 const U = u => u.startsWith("/") ? API + u : u;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-let file = null, results = [], cur = 0, busy = false, photoCount = 0, pvUrl = "";
+let file = null, results = [], cur = 0, busy = false, photoCount = 0, pvUrl = "", total = 0;
 const PH_SVG = '<svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5"></rect><path d="M3 16l5-5 3 3 5-6 5 5"></path></svg>';
 
 document.querySelectorAll("[data-wave]").forEach(el => {
@@ -672,14 +678,41 @@ function render(d) {
     const wider = document.querySelector("input[name=lv]:checked").value !== "0.35";
     return say("ลองปรับความเข้มงวดให้กว้างขึ้น หรือใช้รูปหน้าตรงที่สว่างกว่านี้", true, wider ? ["ค้นหาแบบกว้าง", () => { document.querySelector("input[name=lv][value='0.35']").checked = true; hint(); search(); }] : null);
   }
+  total = d.total;
   $("#resT").innerHTML = `<svg class="ic" viewBox="0 0 24 24"><use href="#i-check"/></svg>พบรูปของคุณ ${d.total} รูป`;
   $("#resTip").textContent = "ไม่ต้องการให้รูปของคุณอยู่ในคลัง? เปิดรูปนั้นแล้วกด “ขอลบรูป” ได้เลย";
   $("#grid").innerHTML = results.map((x, i) => `<button class="card" data-i="${i}" aria-label="เปิดรูปที่ ${i + 1} ความเหมือน ${x.similarity}%"><img src="${U(x.thumb)}" loading="lazy" decoding="async" alt="" referrerpolicy="no-referrer"><span class="pct">${x.similarity}%</span></button>`).join("");
-  $("#grid").querySelectorAll("img").forEach(img => img.addEventListener("error", () => {
-    if (!img.dataset.r) { img.dataset.r = 1; setTimeout(() => { img.src = img.src + (img.src.includes("?") ? "&" : "?") + "r=" + Date.now(); }, 700 + Math.random() * 1500); return; }
-    img.replaceWith(Object.assign(document.createElement("span"), { className: "ph", innerHTML: PH_SVG }));
-  }));
+  $("#grid").querySelectorAll("img").forEach(img => img.addEventListener("error", () => onImgFail(img)));
   $("#res").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* รูปโหลดไม่ขึ้น: ลองใหม่ 2 ครั้ง (เผื่อ Google จำกัดความถี่) → ถ้ายังไม่ขึ้น ถามเซิร์ฟเวอร์ให้ไปตรวจกับ Drive
+   ถ้าถูกลบจริง = ซ่อนการ์ดทิ้งและเซิร์ฟเวอร์จะไม่ส่งรูปนี้มาอีก ถ้าไม่แน่ใจ = โชว์ช่องแจ้ง "โหลดไม่สำเร็จ" ให้กดลองใหม่ */
+function onImgFail(img) {
+  const card = img.closest(".card"); if (!card) return;
+  const x = results[+card.dataset.i], n = +img.dataset.r || 0;
+  if (n < 2) {
+    img.dataset.r = n + 1;
+    setTimeout(() => { try { const u = new URL(img.src); u.searchParams.set("r", Date.now()); img.src = u.href; } catch { img.src = img.src + "#" + Date.now(); } }, 900 + n * 2500 + Math.random() * 1200);
+    return;
+  }
+  if (img.dataset.rep) return; img.dataset.rep = 1;
+  reportBroken(card, img, x);
+}
+async function reportBroken(card, img, x) {
+  let dead = false;
+  try { const r = await req("/api/broken", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: x.id }) }, { timeout: 30000 }); dead = !!(r.ok && r.d.dead); } catch {}
+  if (dead) { x.dead = true; card.hidden = true; refreshCount(); return; }
+  const ph = Object.assign(document.createElement("span"), { className: "ph", innerHTML: PH_SVG + "<span>โหลดรูปไม่สำเร็จ<br>แตะเพื่อลองใหม่</span>" });
+  img.replaceWith(ph);
+  card.addEventListener("click", function retry(e) {
+    if (!x.retry) { x.retry = true; e.stopImmediatePropagation(); const im = document.createElement("img"); im.alt = ""; im.referrerPolicy = "no-referrer"; im.src = U(x.thumb) + (U(x.thumb).includes("?") ? "&" : "?") + "r=" + Date.now(); im.onload = () => ph.replaceWith(im); }
+  }, { capture: true, once: true });
+}
+function refreshCount() {
+  const gone = results.filter(r => r.dead).length;
+  const t = $("#resT").lastChild; if (t && t.nodeType === 3) t.textContent = `พบรูปของคุณ ${Math.max(0, total - gone)} รูป`;
+  if (gone === results.length) { $("#resS").textContent = "รูปที่พบถูกลบออกจากคลังแล้ว ลองค้นหาใหม่อีกครั้ง"; }
 }
 $("#goBtn").onclick = search;
 $("#grid").onclick = e => { const c = e.target.closest(".card"); if (c) show(+c.dataset.i); };
@@ -694,14 +727,19 @@ function show(i) {
   full.onerror = () => { if (me === cur) st.classList.remove("busy"); };
   full.src = U(x.full);
   $("#lbDl").href = U(x.download); $("#lbDl").download = `STSS-${cur + 1}.jpg`; $("#lbOpen").href = U(x.open);
-  $("#lbN").textContent = `${cur + 1} / ${results.length}`; $("#lb").classList.add("on"); lock();
+  const live = results.filter(r => !r.dead);
+  $("#lbN").textContent = `${live.indexOf(x) + 1} / ${live.length}`; $("#lb").classList.add("on"); lock();
+}
+function go(dir) {                                   // เลื่อนดูรูปถัดไป/ก่อนหน้า โดยข้ามรูปที่ถูกซ่อนไปแล้ว
+  const n = results.length;
+  for (let k = 1; k <= n; k++) { const j = ((cur + dir * k) % n + n) % n; if (!results[j].dead) return show(j); }
 }
 const hide = () => { $("#lb").classList.remove("on"); lock(); };
-$("#lbX").onclick = hide; $("#prev").onclick = () => show(cur - 1); $("#next").onclick = () => show(cur + 1);
+$("#lbX").onclick = hide; $("#prev").onclick = () => go(-1); $("#next").onclick = () => go(1);
 $("#lb").onclick = e => { if (e.target.id === "lb" || e.target.id === "stage") hide(); };
 let tx = 0, ty = 0;
 $("#stage").addEventListener("touchstart", e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
-$("#stage").addEventListener("touchend", e => { const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(cur + (dx < 0 ? 1 : -1)); }, { passive: true });
+$("#stage").addEventListener("touchend", e => { const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1); }, { passive: true });
 
 /* ---------- ขอลบรูป ---------- */
 const D = { id: "", token: "", step: 1, stream: null, state: "idle", busy: false, autoTimer: null };
@@ -828,8 +866,39 @@ addEventListener("keydown", e => {
     if ($("#lb").classList.contains("on")) return hide();
   }
   if (!$("#lb").classList.contains("on") || document.querySelector(".modal.on")) return;
-  if (e.key === "ArrowLeft") show(cur - 1); if (e.key === "ArrowRight") show(cur + 1);
+  if (e.key === "ArrowLeft") go(-1); if (e.key === "ArrowRight") go(1);
 });
+</script>
+<script>
+/* STSS-CURSOR-GLOW */
+(function () {
+  if (!matchMedia("(hover:hover) and (pointer:fine)").matches || matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  var R = document.documentElement, g = document.createElement("div"), N = 7, dots = [];
+  g.className = "cg"; g.setAttribute("aria-hidden", "true"); document.body.appendChild(g);
+  for (var i = 0; i < N; i++) {
+    var el = document.createElement("i"); el.className = "cg-d"; el.setAttribute("aria-hidden", "true");
+    el.style.setProperty("--s", (15 - i * 1.6) + "px"); el.style.setProperty("--o", (0.9 - i * 0.11).toFixed(2));
+    document.body.appendChild(el); dots.push({ el: el, x: 0, y: 0 });
+  }
+  var tx = 0, ty = 0, gx = 0, gy = 0, raf = 0, on = false;
+  function tick() {
+    gx += (tx - gx) * 0.12; gy += (ty - gy) * 0.12; g.style.transform = "translate3d(" + gx + "px," + gy + "px,0)";
+    var px = tx, py = ty, far = Math.abs(tx - gx) + Math.abs(ty - gy);
+    for (var i = 0; i < N; i++) {
+      var d = dots[i], k = 0.42 - i * 0.04; d.x += (px - d.x) * k; d.y += (py - d.y) * k;
+      d.el.style.transform = "translate3d(" + d.x + "px," + d.y + "px,0)"; px = d.x; py = d.y; far += Math.abs(tx - d.x) + Math.abs(ty - d.y);
+    }
+    raf = far > 0.6 ? requestAnimationFrame(tick) : 0;          // เมาส์หยุดนิ่ง = หยุดคำนวณ ไม่กินแบต
+  }
+  addEventListener("pointermove", function (e) {
+    if (e.pointerType === "touch") return;
+    tx = e.clientX; ty = e.clientY;
+    if (!on) { on = true; gx = tx; gy = ty; dots.forEach(function (d) { d.x = tx; d.y = ty; }); R.classList.add("cg-on"); }
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+  R.addEventListener("mouseleave", function () { on = false; R.classList.remove("cg-on"); });
+  document.addEventListener("visibilitychange", function () { if (document.hidden) { on = false; R.classList.remove("cg-on"); } });
+})();
 </script>
 </body>
 </html>
